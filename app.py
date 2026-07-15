@@ -1,10 +1,11 @@
 import streamlit as st
 import os
-from datetime import datetime
+import io
+import zipfile
 import pandas as pd
 
 # ==========================================
-# 1. PAGE CONFIGURATION & DIRECTORY MANAGEMENT
+# 1. PAGE CONFIGURATION & INTAKE SETTINGS
 # ==========================================
 st.set_page_config(
     page_title="Fidel Softech Resource Onboarding", 
@@ -12,13 +13,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Dedicated directory folder to store isolated vendor spreadsheets
-RECORD_DIR = "vendor_records"
-if not os.path.exists(RECORD_DIR):
-    try:
-        os.makedirs(RECORD_DIR)
-    except:
-        pass
+TARGET_EMAIL = "vendor-mgmt@fideltech.com"
 
 # Helper function to read local template files securely
 def get_file_data(filename):
@@ -190,8 +185,11 @@ file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=
 st.markdown("---")
  
 # ==========================================
-# 4. SUBMISSION & ISOLATED EXCEL AUTO-GENERATION
+# 4. SUBMISSION VALIDATION ENGINE
 # ==========================================
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
+
 if st.button("Submit Onboarding Registration", type="primary"):
     v_first_name = len(f_name.strip()) > 0
     v_last_name = len(l_name.strip()) > 0
@@ -211,65 +209,121 @@ if st.button("Submit Onboarding Registration", type="primary"):
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
         v_country and v_native and v_work_lang and v_services and v_track and 
         v_test_file and v_compliance and v_edu_docs and v_ref_doc):
-        
-        full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
-        clean_name = full_vendor_name.replace(' ', '_')
-        
-        # Build the structured row data dataset explicitly for this single linguist
-        vendor_data = {
-            "Field Matrix": [
-                "Registration Date", "First Name", "Last Name", "Email ID", "Contact Number",
-                "Availability Status", "Street Address", "City", "State", "Zip Code", "Country",
-                "Native Language", "Experience (Years)", "Language Combinations", "CAT Tools",
-                "Domain Expertise", "Services Provided", "Bank Name", "Account Holder",
-                "Bank Code", "Account Number", "IFSC Code", "Swift Code", "PAN Card", "GST Number",
-                "PayPal ID", "Payoneer ID", "ProZ Link", "Translation Test Track", "Test File Name"
-            ],
-            "Vendor Response Value": [
-                datetime.now().strftime("%Y-%m-%d %H:%M"),
-                f_name.strip(),
-                l_name.strip(),
-                v_email.strip(),
-                v_phone,
-                avail,
-                f"{addr_street} {addr_street2}".strip(),
-                addr_city.strip(),
-                addr_state.strip(),
-                addr_zip.strip(),
-                addr_country.strip(),
-                native.strip(),
-                exp,
-                lang_pairs.strip(),
-                ', '.join(selected_cat_tools) if selected_cat_tools else "None",
-                ', '.join(selected_domains) if selected_domains else "None",
-                ', '.join(selected_services),
-                b_name.strip(),
-                b_holder.strip(),
-                b_code.strip(),
-                b_acc.strip(),
-                b_ifsc.strip(),
-                b_swift.strip(),
-                b_tax.strip(),
-                b_gst.strip(),
-                pay_paypal.strip(),
-                pay_payoneer.strip(),
-                pay_proz.strip(),
-                test_track,
-                file_test_attempt.name
-            ]
-        }
-        
-        # Convert data profile structure to pandas matrix DataFrame
-        df_individual = pd.DataFrame(vendor_data)
-        
-        # Save explicitly as their own isolated standalone file inside the vendor folder directory
-        individual_filename = os.path.join(RECORD_DIR, f"{clean_name}_Onboarding_Details.csv")
-        df_individual.to_csv(individual_filename, index=False)
-        
-        st.info("ℹ️ Your profile details have been compiled into an individual spreadsheet matrix entry successfully.")
-        
-        st.markdown("<div style='padding:15px; background-color:#e8f4fd; border-radius:5px; border-left:4px solid #2196f3;'>"
-                    "<b>Onboarding Step Complete:</b> A dedicated registration tracking sheet has been generated for your profile record."
-                    "</div>", unsafe_allow_html=True)
+        st.session_state.submitted = True
     else:
-        st.error("❌ Submission Failed. Please ensure all mandatory fields (*) are complete.")
+        st.error("❌ Submission Failed. Please make sure all mandatory fields (*) are complete and all files are uploaded.")
+
+# ==========================================
+# 5. CONCORDANCE AND ZIP COMPOSER PAD (.XLSX)
+# ==========================================
+if st.session_state.submitted:
+    full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
+    clean_name = full_vendor_name.replace(' ', '_')
+    
+    # 1. Construct the Excel row data matrix
+    vendor_data = {
+        "Field Matrix": [
+            "Registration Date", "First Name", "Last Name", "Email ID", "Contact Number",
+            "Availability Status", "Street Address", "City", "State", "Zip Code", "Country",
+            "Native Language", "Experience (Years)", "Language Combinations", "CAT Tools",
+            "Domain Expertise", "Services Provided", "Bank Name", "Account Holder",
+            "Bank Code", "Account Number", "IFSC Code", "Swift Code", "PAN Card", "GST Number",
+            "PayPal ID", "Payoneer ID", "ProZ Link", "Translation Test Track", "Test File Name"
+        ],
+        "Vendor Response Value": [
+            datetime.now().strftime("%Y-%m-%d %H:%M"),
+            f_name.strip(),
+            l_name.strip(),
+            v_email.strip(),
+            v_phone,
+            avail,
+            f"{addr_street} {addr_street2}".strip(),
+            addr_city.strip(),
+            addr_state.strip(),
+            addr_zip.strip(),
+            addr_country.strip(),
+            native.strip(),
+            exp,
+            lang_pairs.strip(),
+            ', '.join(selected_cat_tools) if selected_cat_tools else "None",
+            ', '.join(selected_domains) if selected_domains else "None",
+            ', '.join(selected_services),
+            b_name.strip(),
+            b_holder.strip(),
+            b_code.strip(),
+            b_acc.strip(),
+            b_ifsc.strip(),
+            b_swift.strip(),
+            b_tax.strip(),
+            b_gst.strip(),
+            pay_paypal.strip(),
+            pay_payoneer.strip(),
+            pay_proz.strip(),
+            test_track,
+            file_test_attempt.name
+        ]
+    }
+    
+    df_individual = pd.DataFrame(vendor_data)
+    
+    # 2. Write the Excel document into a binary buffer stream in memory
+    excel_buffer = io.BytesIO()
+    with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+        df_individual.to_excel(writer, index=False, sheet_name="Vendor Details")
+    excel_data = excel_buffer.getvalue()
+    
+    # 3. Process memory buffer streams to compress the Excel + uploaded files into a ZIP folder
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        # Add the generated .xlsx file directly into the ZIP archive
+        zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_data)
+        
+        uploaded_files = [
+            (file_nda, "Signed_NDA"), 
+            (file_po, "Signed_PO"), 
+            (file_consent, "Signed_Data_Consent"),
+            (file_test_attempt, "Completed_Translation_Test"),
+            (file_edu, "Educational_Certificates"), 
+            (file_ref, "Reference_Letter"), 
+            (file_cert, "Translation_Certificate")
+        ]
+        
+        for file_obj, filename_prefix in uploaded_files:
+            if file_obj is not None:
+                ext = os.path.splitext(file_obj.name)[1]
+                zip_file.writestr(f"{filename_prefix}{ext}", file_obj.getvalue())
+                
+    zip_buffer.seek(0)
+    
+    st.info("ℹ️ Your registration data files have been verified and bundled successfully.")
+    st.markdown("---")
+    st.markdown("### 📧 Final Step: Dispatch Packages to Vendor Management")
+    st.write("Follow these two quick steps to send your documentation straight to our team:")
+    
+    act_col1, act_col2 = st.columns(2)
+    
+    with act_col1:
+        st.markdown("**Step 1:** Download the complete package.")
+        st.download_button(
+            label="📥 Download Onboarding Package (.zip)",
+            data=zip_buffer.getvalue(),
+            file_name=f"{clean_name}_Onboarding_Package.zip",
+            mime="application/zip",
+            type="primary",
+            use_container_width=True
+        )
+        
+    with act_col2:
+        st.markdown("**Step 2:** Open email client dashboard.")
+        email_subject = f"Onboarding Registration Submission - {full_vendor_name}"
+        email_body = f"Hello VM Team,\n\nPlease find attached my unified resource onboarding folder package containing my registration details Excel sheet and signed compliance documentation.\n\nBest Regards,\n{full_vendor_name}"
+        mailto_link = f"mailto:{TARGET_EMAIL}?subject={email_subject.replace(' ', '%20')}&body={email_body.replace(' ', '%20').replace('\n', '%0A')}"
+        
+        st.markdown(
+            f'<a href="{mailto_link}" target="_blank" style="text-decoration:none;">'
+            f'<button style="background-color:#4CAF50; color:white; border:none; padding:10px 20px; font-size:16px; '
+            f'border-radius:4px; cursor:pointer; width:100%; height:45px; margin-top:2px;">📨 Open Corporate Mail Client</button></a>', 
+            unsafe_allow_html=True
+        )
+        
+    st.info("💡 **Tip:** After you click Step 1 to download the file, hit Step 2. Your email app will instantly open up pre-addressed, and you can just drag the zip file from your download bar directly into that message window!")
