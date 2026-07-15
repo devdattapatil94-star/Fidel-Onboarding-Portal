@@ -173,28 +173,76 @@ if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
     clean_name = full_vendor_name.replace(' ', '_')
     
-    # Structure profile report plain text manifest
-    profile_report = (
-        f"FIDEL SOFTECH RESOURCE PROFILE DATA\n"
-        f"==================================\n"
-        f"Name: {full_vendor_name}\n"
-        f"Email: {v_email.strip()} | Phone: {v_phone}\n"
-        f"Address: {addr_street}, {addr_city}, {addr_state}, {addr_country}\n"
-        f"Native Language: {native.strip()} | Pairs: {lang_pairs.strip()}\n"
-        f"Services: {', '.join(selected_services)}\n"
-        f"CAT Tools: {', '.join(selected_cat_tools)}\n\n"
-        f"FINANCIAL DATA:\n"
-        f"Bank: {b_name} | Acc Holder: {b_holder}\n"
-        f"Code/Number: {b_code} / {b_acc}\n"
-        f"IFSC/Swift: {b_ifsc} / {b_swift}\n"
-        f"PAN Card: {b_tax} | GST: {b_gst}\n"
-        f"Alternates: PayPal: {pay_paypal} | Payoneer: {pay_payoneer} | ProZ: {pay_proz}"
-    )
+    # Render the configuration data straight into Word-compliant HTML syntax
+    # Uses 11pt Calibri where labels are bolded, but user values are standard weight text.
+    word_html_doc = f"""<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head>
+        <title>Fidel Onboarding Data</title>
+        <style>
+            body {{
+                font-family: 'Calibri', sans-serif;
+                font-size: 11pt;
+                line-height: 1.25;
+            }}
+            .section-title {{
+                font-size: 13pt;
+                font-weight: bold;
+                border-bottom: 1px solid #000000;
+                margin-top: 15pt;
+                margin-bottom: 5pt;
+            }}
+            p {{
+                margin: 0 0 4pt 0;
+            }}
+        </style>
+    </head>
+    <body>
+        <h2>FIDEL SOFTECH RESOURCE PROFILE DATA</h2>
+        <hr/>
+        
+        <div class="section-title">PERSONAL INFORMATION</div>
+        <p><b>Name:</b> {full_vendor_name}</p>
+        <p><b>Email ID:</b> {v_email.strip()}</p>
+        <p><b>Contact Number:</b> {v_phone}</p>
+        <p><b>Availability Status:</b> {avail}</p>
+        <p><b>Street Address:</b> {addr_street} {addr_street2}</p>
+        <p><b>City:</b> {addr_city}</p>
+        <p><b>State:</b> {addr_state}</p>
+        <p><b>Zip Code:</b> {addr_zip}</p>
+        <p><b>Country:</b> {addr_country}</p>
+        
+        <div class="section-title">QUALIFICATIONS & LANGUAGES</div>
+        <p><b>Native Language:</b> {native.strip()}</p>
+        <p><b>Years of Experience:</b> {exp}</p>
+        <p><b>Working Language Combinations:</b> {lang_pairs.strip()}</p>
+        <p><b>CAT Tools Proficiency:</b> {', '.join(selected_cat_tools) if selected_cat_tools else 'None Specified'}</p>
+        <p><b>Domain Expertise:</b> {', '.join(selected_domains) if selected_domains else 'None Specified'}</p>
+        <p><b>Services Provided:</b> {', '.join(selected_services)}</p>
+        
+        <div class="section-title">FINANCIAL & BANK DETAILS</div>
+        <p><b>Bank Name:</b> {b_name}</p>
+        <p><b>Account Holder Name:</b> {b_holder}</p>
+        <p><b>Bank Code:</b> {b_code}</p>
+        <p><b>Account Number:</b> {b_acc}</p>
+        <p><b>IFSC Code:</b> {b_ifsc}</p>
+        <p><b>Swift Code:</b> {b_swift}</p>
+        <p><b>Bank Address:</b> {b_address}</p>
+        <p><b>Bank Country:</b> {b_country}</p>
+        <p><b>PAN Card:</b> {b_tax}</p>
+        <p><b>GST Number:</b> {b_gst}</p>
+        
+        <div class="section-title">ALTERNATIVE GLOBAL PAYMENT SYSTEMS</div>
+        <p><b>PayPal ID:</b> {pay_paypal}</p>
+        <p><b>Payoneer Code / ID:</b> {pay_payoneer}</p>
+        <p><b>ProZ*Pay Link:</b> {pay_proz}</p>
+    </body>
+    </html>"""
     
     # Process memory buffer streams to compress document files dynamically
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        zip_file.writestr(f"{clean_name}_Registration_Details.txt", profile_report)
+        # Save explicitly as a native .doc Word element file 
+        zip_file.writestr(f"{clean_name}_Registration_Details.doc", word_html_doc.encode('utf-8'))
         
         uploaded_files = [
             (file_nda, "Signed_NDA"), 
@@ -212,7 +260,8 @@ if st.session_state.submitted:
                 
     zip_buffer.seek(0)
     
-    st.success("🎉 Registration Confirmed! Your submission files have been successfully compiled.")
+    # Standard warning and informational instructions layout
+    st.info("ℹ️ Your registration data files have been verified and bundled successfully.")
     st.markdown("---")
     st.markdown("### 📧 Final Step: Dispatch Packages to Vendor Management")
     st.write("Follow these two quick steps to send your documentation straight to our team:")
@@ -232,9 +281,9 @@ if st.session_state.submitted:
         )
         
     with act_col2:
-        st.markdown("**Step 2:** Open email context dashboard.")
+        st.markdown("**Step 2:** Open email client dashboard.")
         email_subject = f"Onboarding Registration Submission - {full_vendor_name}"
-        email_body = f"Hello VM Team,\n\nPlease find attached my unified resource onboarding folder package containing my registration details and signed compliance documentation.\n\nBest Regards,\n{full_vendor_name}"
+        email_body = f"Hello VM Team,\n\nPlease find attached my unified resource onboarding folder package containing my registration details Word file and signed compliance documentation.\n\nBest Regards,\n{full_vendor_name}"
         mailto_link = f"mailto:{TARGET_EMAIL}?subject={email_subject.replace(' ', '%20')}&body={email_body.replace(' ', '%20').replace('\n', '%0A')}"
         
         st.markdown(
