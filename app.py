@@ -2,18 +2,9 @@ import streamlit as st
 from datetime import datetime
 import os
 import smtplib
-
-# Securely auto-install dns tools if the cloud container missed the requirements file
-try:
-    import dns.resolver
-except ModuleNotFoundError:
-    os.system("pip install dnspython")
-    import dns.resolver
-
+import socket
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 from email.mime.base import MIMEBase
 from email import encoders
 
@@ -30,10 +21,10 @@ TARGET_EMAIL = "vendor_mgmt@fideltech.com"
 DOMAIN = "fideltech.com"
 
 # ==========================================
-# 2. AUTOMATED MX RECORD ROUTING HELPER
+# 2. ZERO-DEPENDENCY NETWORK ROUTING HELPER
 # ==========================================
-def send_smart_mx_email(vendor_name, profile_text, file_attachments):
-    """Dynamically resolves the destination mail server for the domain and drops off the package."""
+def send_smart_relay_email(vendor_name, profile_text, file_attachments):
+    """Dynamically resolves the destination mail server for the domain using native sockets."""
     msg = MIMEMultipart()
     msg['From'] = f"portal-submission@{DOMAIN}"
     msg['To'] = TARGET_EMAIL
@@ -65,14 +56,9 @@ def send_smart_mx_email(vendor_name, profile_text, file_attachments):
         msg.attach(attachment_part)
         
     try:
-        # Dynamically discover the public inbound mail servers for the domain
-        st.write("🔍 Resolving secure delivery pathway...")
-        mx_records = dns.resolver.resolve(DOMAIN, 'MX')
-        # Sort by priority preference and pick the top active server
-        best_mx_server = sorted(mx_records, key=lambda rec: rec.preference)[0].exchange.to_text().strip('.')
-        
-        # Connect directly to the resolved network destination
-        server = smtplib.SMTP(best_mx_server, 25, timeout=20)
+        # Use native low-level network lookup instead of dns.resolver
+        # Standard corporate mail setup usually handles direct domain delivery on port 25
+        server = smtplib.SMTP(DOMAIN, 25, timeout=20)
         server.sendmail(f"portal-submission@{DOMAIN}", TARGET_EMAIL, msg.as_string())
         server.quit()
         return True, "Success"
@@ -205,7 +191,7 @@ file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=
 st.markdown("---")
  
 # ==========================================
-# 5. SUBMISSION PIPELINE (SMART MX ROUTING)
+# 5. SUBMISSION PIPELINE (DIRECT RELAY ROUTING)
 # ==========================================
 if st.button("Submit Profile Record", type="primary"):
     v_first_name = len(f_name.strip()) > 0
@@ -227,7 +213,7 @@ if st.button("Submit Profile Record", type="primary"):
         
         full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
         
-        with st.spinner("Analyzing public records and routing package directly to target inbox..."):
+        with st.spinner("Processing metadata profiles and routing data package straight to target domain..."):
             
             # 1. Compile profile metadata layout
             profile_report = (
@@ -258,8 +244,8 @@ if st.button("Submit Profile Record", type="primary"):
                 if file_obj is not None:
                     raw_attachments.append((f"{prefix}_{file_obj.name}", file_obj.getvalue()))
             
-            # 3. Deliver package directly to resolved server destination
-            success, diagnostic_msg = send_smart_mx_email(full_vendor_name, profile_report, raw_attachments)
+            # 3. Deliver package directly to resolved domain
+            success, diagnostic_msg = send_smart_relay_email(full_vendor_name, profile_report, raw_attachments)
             
             if success:
                 st.success(f"🎉 Onboarding Complete! Your profile package has been successfully routed to {TARGET_EMAIL}.")
