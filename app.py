@@ -1,5 +1,7 @@
 import streamlit as st
 import os
+import io
+import zipfile
 
 # ==========================================
 # 1. PAGE CONFIGURATION & INTAKE SETTINGS
@@ -10,7 +12,7 @@ st.set_page_config(
     layout="centered"
 )
 
-TARGET_EMAIL = "vendor_mgmt@fideltech.com"
+TARGET_EMAIL = "vendor-mgmt@fideltech.com"
 
 # ==========================================
 # 2. HEADER LAYOUT (LOGO & TITLE SIDE-BY-SIDE)
@@ -138,28 +140,40 @@ file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=
 st.markdown("---")
  
 # ==========================================
-# 4. SUBMISSION DATA PACKAGE GENERATOR
+# 4. SUBMISSION VALIDATION ENGINE
 # ==========================================
-v_first_name = len(f_name.strip()) > 0
-v_last_name = len(l_name.strip()) > 0
-v_email_id = len(v_email.strip()) > 0
-v_contact = len(v_phone.strip()) > 0
-v_city = len(addr_city.strip()) > 0
-v_country = len(addr_country.strip()) > 0
-v_native = len(native.strip()) > 0
-v_work_lang = len(lang_pairs.strip()) > 0
-v_services = len(selected_services) > 0
-v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
-v_edu_docs = file_edu is not None
-v_ref_doc = file_ref is not None
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
 
-if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
-    v_country and v_native and v_work_lang and v_services and v_compliance and 
-    v_edu_docs and v_ref_doc):
-    
+if st.button("Submit Onboarding Registration", type="primary"):
+    v_first_name = len(f_name.strip()) > 0
+    v_last_name = len(l_name.strip()) > 0
+    v_email_id = len(v_email.strip()) > 0
+    v_contact = len(v_phone.strip()) > 0
+    v_city = len(addr_city.strip()) > 0
+    v_country = len(addr_country.strip()) > 0
+    v_native = len(native.strip()) > 0
+    v_work_lang = len(lang_pairs.strip()) > 0
+    v_services = len(selected_services) > 0
+    v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
+    v_edu_docs = file_edu is not None
+    v_ref_doc = file_ref is not None
+
+    if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
+        v_country and v_native and v_work_lang and v_services and v_compliance and 
+        v_edu_docs and v_ref_doc):
+        st.session_state.submitted = True
+    else:
+        st.error("❌ Submission Failed. Please make sure all mandatory fields (*) are complete and all files are uploaded.")
+
+# ==========================================
+# 5. CONCORDANCE AND MAIL COMPOSER PAD
+# ==========================================
+if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
+    clean_name = full_vendor_name.replace(' ', '_')
     
-    # Compile text configuration summary content
+    # Structure profile report plain text manifest
     profile_report = (
         f"FIDEL SOFTECH RESOURCE PROFILE DATA\n"
         f"==================================\n"
@@ -177,17 +191,57 @@ if (v_first_name and v_last_name and v_email_id and v_contact and v_city and
         f"Alternates: PayPal: {pay_paypal} | Payoneer: {pay_payoneer} | ProZ: {pay_proz}"
     )
     
-    st.success("✅ Profile completed successfully! Click the button below to save your generated details summary.")
+    # Process memory buffer streams to compress document files dynamically
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        zip_file.writestr(f"{clean_name}_Registration_Details.txt", profile_report)
+        
+        uploaded_files = [
+            (file_nda, "Signed_NDA"), 
+            (file_po, "Signed_PO"), 
+            (file_consent, "Signed_Data_Consent"),
+            (file_edu, "Educational_Certificates"), 
+            (file_ref, "Reference_Letter"), 
+            (file_cert, "Translation_Certificate")
+        ]
+        
+        for file_obj, filename_prefix in uploaded_files:
+            if file_obj is not None:
+                ext = os.path.splitext(file_obj.name)[1]
+                zip_file.writestr(f"{filename_prefix}{ext}", file_obj.getvalue())
+                
+    zip_buffer.seek(0)
     
-    # Expose a clean, localized download generation link anchor
-    st.download_button(
-        label="📥 Download Profile Details File",
-        data=profile_report,
-        file_name=f"{full_vendor_name.replace(' ', '_')}_Profile_Details.txt",
-        mime="text/plain",
-        type="primary"
-    )
+    st.success("🎉 Registration Confirmed! Your submission files have been successfully compiled.")
+    st.markdown("---")
+    st.markdown("### 📧 Final Step: Dispatch Packages to Vendor Management")
+    st.write("Follow these two quick steps to send your documentation straight to our team:")
     
-    st.info(f"📧 **Next Step:** Please email the downloaded text details sheet along with your signed compliance documents directly to **{TARGET_EMAIL}**.")
-else:
-    st.warning("⚠️ Complete all required fields marked with an asterisk (*) to unlock your Profile Generation download button.")
+    # Set up actionable step metrics button columns side-by-side
+    act_col1, act_col2 = st.columns(2)
+    
+    with act_col1:
+        st.markdown("**Step 1:** Download the complete package.")
+        st.download_button(
+            label="📥 Download Onboarding Package (.zip)",
+            data=zip_buffer.getvalue(),
+            file_name=f"{clean_name}_Onboarding_Package.zip",
+            mime="application/zip",
+            type="primary",
+            use_container_width=True
+        )
+        
+    with act_col2:
+        st.markdown("**Step 2:** Open email context dashboard.")
+        email_subject = f"Onboarding Registration Submission - {full_vendor_name}"
+        email_body = f"Hello VM Team,\n\nPlease find attached my unified resource onboarding folder package containing my registration details and signed compliance documentation.\n\nBest Regards,\n{full_vendor_name}"
+        mailto_link = f"mailto:{TARGET_EMAIL}?subject={email_subject.replace(' ', '%20')}&body={email_body.replace(' ', '%20').replace('\n', '%0A')}"
+        
+        st.markdown(
+            f'<a href="{mailto_link}" target="_blank" style="text-decoration:none;">'
+            f'<button style="background-color:#4CAF50; color:white; border:none; padding:10px 20px; font-size:16px; '
+            f'border-radius:4px; cursor:pointer; width:100%; height:45px; margin-top:2px;">📨 Open Corporate Mail Client</button></a>', 
+            unsafe_allow_html=True
+        )
+        
+    st.info("💡 **Tip:** After you click Step 1 to download the file, hit Step 2. Your email app will instantly open up pre-addressed, and you can just drag the zip file from your download bar directly into that message window!")
