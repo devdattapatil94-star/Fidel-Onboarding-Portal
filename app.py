@@ -178,10 +178,10 @@ file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
 file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
 file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
  
-st.markdown("#### 🏅 Section 7: Additional Credentials & Certifications")
+st.markdown("#### 🏅 Section 7: Additional Credentials & Certifications (Optional)")
 file_cert = st.file_uploader("Upload Translation Certificate (if any)", type=['pdf', 'jpg', 'png'])
-file_edu = st.file_uploader("Upload Educational Qualification Certificates *", type=['pdf', 'jpg', 'png'])
-file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=['pdf', 'doc', 'docx'])
+file_edu = st.file_uploader("Upload Educational Qualification Certificates", type=['pdf', 'jpg', 'png'])
+file_ref = st.file_uploader("Upload Reference or Recommendation Letter", type=['pdf', 'doc', 'docx'])
  
 st.markdown("---")
  
@@ -192,6 +192,7 @@ if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
 if st.button("Submit Onboarding Registration", type="primary"):
+    # Clean check for text values
     v_first_name = len(f_name.strip()) > 0
     v_last_name = len(l_name.strip()) > 0
     v_email_id = len(v_email.strip()) > 0
@@ -201,15 +202,16 @@ if st.button("Submit Onboarding Registration", type="primary"):
     v_native = len(native.strip()) > 0
     v_work_lang = len(lang_pairs.strip()) > 0
     v_services = len(selected_services) > 0
+    
+    # Check for mandatory file drops and track selections
     v_track = test_track != "-- Choose Track --"
     v_test_file = file_test_attempt is not None
     v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
-    v_edu_docs = file_edu is not None
-    v_ref_doc = file_ref is not None
 
+    # Strictly check only the critical fields marked with *
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
         v_country and v_native and v_work_lang and v_services and v_track and 
-        v_test_file and v_compliance and v_edu_docs and v_ref_doc):
+        v_test_file and v_compliance):
         st.session_state.submitted = True
     else:
         st.error("❌ Submission Failed. Please make sure all mandatory fields (*) are complete and all files are uploaded.")
@@ -276,7 +278,6 @@ if st.session_state.submitted:
     # 3. Process memory buffer streams to compress the Excel + uploaded files into a ZIP folder
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        # Add the generated .xlsx file directly into the ZIP archive
         zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_data)
         
         uploaded_files = [
