@@ -174,7 +174,7 @@ if test_track == "English to Indian Languages":
 elif test_track == "English to Japanese":
     target_filename = "Test_English_to_Japanese.docx"
 elif test_track == "Japanese to English":
-    target_filename = "Test_Japanese_to_English.docx"
+    target_filename = "Test_Japanese_to_English.xlsx"
 
 if target_filename:
     test_file_data = get_file_data(target_filename)
