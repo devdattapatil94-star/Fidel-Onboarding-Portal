@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 
 # ==========================================
-# 1. PAGE CONFIGURATION & CENTRAL DATABASE
+# 1. PAGE CONFIGURATION & DIRECTORY MANAGEMENT
 # ==========================================
 st.set_page_config(
     page_title="Fidel Softech Resource Onboarding", 
@@ -12,31 +12,15 @@ st.set_page_config(
     layout="centered"
 )
 
-# Central master database tracking sheet filename
-DB_FILE = "fidel_vendor_registry.csv"
+# Dedicated directory folder to store isolated vendor spreadsheets
+RECORD_DIR = "vendor_records"
+if not os.path.exists(RECORD_DIR):
+    try:
+        os.makedirs(RECORD_DIR)
+    except:
+        pass
 
-def load_registry():
-    """Loads the database sheet or builds a clean structural template if it doesn't exist."""
-    if os.path.exists(DB_FILE):
-        try:
-            return pd.read_csv(DB_FILE)
-        except:
-            pass
-            
-    return pd.DataFrame(columns=[
-        "Registration Date", "First Name", "Last Name", "Email ID", "Contact Number",
-        "Availability Status", "Street Address", "City", "State", "Zip Code", "Country",
-        "Native Language", "Experience (Years)", "Language Combinations", "CAT Tools",
-        "Domain Expertise", "Services Provided", "Bank Name", "Account Holder",
-        "Bank Code", "Account Number", "IFSC Code", "Swift Code", "PAN Card", "GST Number",
-        "PayPal ID", "Payoneer ID", "ProZ Link", "Translation Test Track", "Test File Name"
-    ])
-
-def save_to_registry(df):
-    """Saves the tracking data matrix back to the central repository baseline file."""
-    df.to_csv(DB_FILE, index=False)
-
-# Helper function to read local files securely
+# Helper function to read local template files securely
 def get_file_data(filename):
     if os.path.exists(filename):
         try:
@@ -165,7 +149,6 @@ test_track = st.selectbox("Select Translation Test Track *", [
     "Japanese to English"
 ])
 
-# Process dynamic test file delivery mapping
 test_file_data = b""
 target_filename = ""
 
@@ -174,7 +157,7 @@ if test_track == "English to Indian Languages":
 elif test_track == "English to Japanese":
     target_filename = "Test_English_to_Japanese.docx"
 elif test_track == "Japanese to English":
-    target_filename = "Test_Japanese_to_English.xlsx"
+    target_filename = "Test_Japanese_to_English.docx"
 
 if target_filename:
     test_file_data = get_file_data(target_filename)
@@ -187,7 +170,7 @@ if target_filename:
             type="secondary"
         )
     else:
-        st.warning(f"⚠️ {target_filename} not found in repository repository path. Please upload it to GitHub.")
+        st.warning(f"⚠️ {target_filename} not found in the repository root path.")
 
 file_test_attempt = st.file_uploader("Upload Your Completed Translation Test File *", type=['txt', 'doc', 'docx', 'pdf'])
 
@@ -207,7 +190,7 @@ file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=
 st.markdown("---")
  
 # ==========================================
-# 4. SUBMISSION & AUTOMATIC REGISTRY POPULATION
+# 4. SUBMISSION & ISOLATED EXCEL AUTO-GENERATION
 # ==========================================
 if st.button("Submit Onboarding Registration", type="primary"):
     v_first_name = len(f_name.strip()) > 0
@@ -229,51 +212,64 @@ if st.button("Submit Onboarding Registration", type="primary"):
         v_country and v_native and v_work_lang and v_services and v_track and 
         v_test_file and v_compliance and v_edu_docs and v_ref_doc):
         
-        # Load the running Excel dataset registry sheet
-        df_registry = load_registry()
+        full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
+        clean_name = full_vendor_name.replace(' ', '_')
         
-        # Build the structured row data payload
-        new_row = {
-            "Registration Date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "First Name": f_name.strip(),
-            "Last Name": l_name.strip(),
-            "Email ID": v_email.strip(),
-            "Contact Number": v_phone,
-            "Availability Status": avail,
-            "Street Address": f"{addr_street} {addr_street2}".strip(),
-            "City": addr_city.strip(),
-            "State": addr_state.strip(),
-            "Zip Code": addr_zip.strip(),
-            "Country": addr_country.strip(),
-            "Native Language": native.strip(),
-            "Experience (Years)": exp,
-            "Language Combinations": lang_pairs.strip(),
-            "CAT Tools": ', '.join(selected_cat_tools) if selected_cat_tools else "None",
-            "Domain Expertise": ', '.join(selected_domains) if selected_domains else "None",
-            "Services Provided": ', '.join(selected_services),
-            "Bank Name": b_name.strip(),
-            "Account Holder": b_holder.strip(),
-            "Bank Code": b_code.strip(),
-            "Account Number": b_acc.strip(),
-            "IFSC Code": b_ifsc.strip(),
-            "Swift Code": b_swift.strip(),
-            "PAN Card": b_tax.strip(),
-            "GST Number": b_gst.strip(),
-            "PayPal ID": pay_paypal.strip(),
-            "Payoneer ID": pay_payoneer.strip(),
-            "ProZ Link": pay_proz.strip(),
-            "Translation Test Track": test_track,
-            "Test File Name": file_test_attempt.name
+        # Build the structured row data dataset explicitly for this single linguist
+        vendor_data = {
+            "Field Matrix": [
+                "Registration Date", "First Name", "Last Name", "Email ID", "Contact Number",
+                "Availability Status", "Street Address", "City", "State", "Zip Code", "Country",
+                "Native Language", "Experience (Years)", "Language Combinations", "CAT Tools",
+                "Domain Expertise", "Services Provided", "Bank Name", "Account Holder",
+                "Bank Code", "Account Number", "IFSC Code", "Swift Code", "PAN Card", "GST Number",
+                "PayPal ID", "Payoneer ID", "ProZ Link", "Translation Test Track", "Test File Name"
+            ],
+            "Vendor Response Value": [
+                datetime.now().strftime("%Y-%m-%d %H:%M"),
+                f_name.strip(),
+                l_name.strip(),
+                v_email.strip(),
+                v_phone,
+                avail,
+                f"{addr_street} {addr_street2}".strip(),
+                addr_city.strip(),
+                addr_state.strip(),
+                addr_zip.strip(),
+                addr_country.strip(),
+                native.strip(),
+                exp,
+                lang_pairs.strip(),
+                ', '.join(selected_cat_tools) if selected_cat_tools else "None",
+                ', '.join(selected_domains) if selected_domains else "None",
+                ', '.join(selected_services),
+                b_name.strip(),
+                b_holder.strip(),
+                b_code.strip(),
+                b_acc.strip(),
+                b_ifsc.strip(),
+                b_swift.strip(),
+                b_tax.strip(),
+                b_gst.strip(),
+                pay_paypal.strip(),
+                pay_payoneer.strip(),
+                pay_proz.strip(),
+                test_track,
+                file_test_attempt.name
+            ]
         }
         
-        # Automatically append the new vendor details row
-        df_registry = pd.concat([df_registry, pd.DataFrame([new_row])], ignore_index=True)
-        save_to_registry(df_registry)
+        # Convert data profile structure to pandas matrix DataFrame
+        df_individual = pd.DataFrame(vendor_data)
         
-        st.info("ℹ️ Your registration data has been logged into the central database tracker successfully.")
+        # Save explicitly as their own isolated standalone file inside the vendor folder directory
+        individual_filename = os.path.join(RECORD_DIR, f"{clean_name}_Onboarding_Details.csv")
+        df_individual.to_csv(individual_filename, index=False)
+        
+        st.info("ℹ️ Your profile details have been compiled into an individual spreadsheet matrix entry successfully.")
         
         st.markdown("<div style='padding:15px; background-color:#e8f4fd; border-radius:5px; border-left:4px solid #2196f3;'>"
-                    "<b>Onboarding Step Complete:</b> Your profile metrics and submitted data credentials have been completely populated into the central system database entries."
+                    "<b>Onboarding Step Complete:</b> A dedicated registration tracking sheet has been generated for your profile record."
                     "</div>", unsafe_allow_html=True)
     else:
-        st.error("❌ Submission Failed. Please ensure all mandatory fields (*), including the translation test track selection and test file upload, are complete.")
+        st.error("❌ Submission Failed. Please ensure all mandatory fields (*) are complete.")
