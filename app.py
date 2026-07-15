@@ -1,12 +1,5 @@
 import streamlit as st
-from datetime import datetime
 import os
-import smtplib
-import socket
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 
 # ==========================================
 # 1. PAGE CONFIGURATION & INTAKE SETTINGS
@@ -18,55 +11,9 @@ st.set_page_config(
 )
 
 TARGET_EMAIL = "vendor_mgmt@fideltech.com"
-DOMAIN = "fideltech.com"
 
 # ==========================================
-# 2. ZERO-DEPENDENCY NETWORK ROUTING HELPER
-# ==========================================
-def send_smart_relay_email(vendor_name, profile_text, file_attachments):
-    """Dynamically resolves the destination mail server for the domain using native sockets."""
-    msg = MIMEMultipart()
-    msg['From'] = f"portal-submission@{DOMAIN}"
-    msg['To'] = TARGET_EMAIL
-    msg['Subject'] = f"🚀 New Resource Onboarding Submission: {vendor_name}"
-    
-    body_content = f"""
-    <h3>Fidel Softech Resource Empanelment Alert</h3>
-    <p>A new linguist profile record has been submitted by <strong>{vendor_name}</strong>.</p>
-    <p>Please find the profile summary text file and all signed compliance documentation attachments appended to this email.</p>
-    <br>
-    <hr>
-    <small>Automated System Message - Operational Management Portal</small>
-    """
-    msg.attach(MIMEText(body_content, 'html'))
-    
-    # 1. Attach the generated Profile Details text sheet
-    profile_part = MIMEBase('text', 'plain')
-    profile_part.set_payload(profile_text.encode('utf-8'))
-    encoders.encode_base64(profile_part)
-    profile_part.add_header('Content-Disposition', f"attachment; filename={vendor_name.replace(' ', '_')}_Profile_Details.txt")
-    msg.attach(profile_part)
-    
-    # 2. Attach all uploaded compliance documents sequentially
-    for file_name, file_bytes in file_attachments:
-        attachment_part = MIMEBase('application', 'octet-stream')
-        attachment_part.set_payload(file_bytes)
-        encoders.encode_base64(attachment_part)
-        attachment_part.add_header('Content-Disposition', f"attachment; filename={file_name}")
-        msg.attach(attachment_part)
-        
-    try:
-        # Use native low-level network lookup instead of dns.resolver
-        # Standard corporate mail setup usually handles direct domain delivery on port 25
-        server = smtplib.SMTP(DOMAIN, 25, timeout=20)
-        server.sendmail(f"portal-submission@{DOMAIN}", TARGET_EMAIL, msg.as_string())
-        server.quit()
-        return True, "Success"
-    except Exception as e:
-        return False, f"Delivery route failed: {e}. Your corporate network firewall might be blocking direct external SMTP drops on port 25."
-
-# ==========================================
-# 3. HEADER LAYOUT (LOGO & TITLE SIDE-BY-SIDE)
+# 2. HEADER LAYOUT (LOGO & TITLE SIDE-BY-SIDE)
 # ==========================================
 logo_path = "FIDEL.NSE.png"
 col_logo, col_title = st.columns([0.6, 4.4], vertical_alignment="center")
@@ -84,7 +31,7 @@ st.markdown("---")
 st.subheader("📄 Resource Empanelment Profile")
 
 # ==========================================
-# 4. FORM SECTIONS
+# 3. FORM SECTIONS
 # ==========================================
 st.markdown("#### 👤 Section 1: Personal Information")
 col1, col2 = st.columns(2)
@@ -191,65 +138,56 @@ file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=
 st.markdown("---")
  
 # ==========================================
-# 5. SUBMISSION PIPELINE (DIRECT RELAY ROUTING)
+# 4. SUBMISSION DATA PACKAGE GENERATOR
 # ==========================================
-if st.button("Submit Profile Record", type="primary"):
-    v_first_name = len(f_name.strip()) > 0
-    v_last_name = len(l_name.strip()) > 0
-    v_email_id = len(v_email.strip()) > 0
-    v_contact = len(v_phone.strip()) > 0
-    v_city = len(addr_city.strip()) > 0
-    v_country = len(addr_country.strip()) > 0
-    v_native = len(native.strip()) > 0
-    v_work_lang = len(lang_pairs.strip()) > 0
-    v_services = len(selected_services) > 0
-    v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
-    v_edu_docs = file_edu is not None
-    v_ref_doc = file_ref is not None
+v_first_name = len(f_name.strip()) > 0
+v_last_name = len(l_name.strip()) > 0
+v_email_id = len(v_email.strip()) > 0
+v_contact = len(v_phone.strip()) > 0
+v_city = len(addr_city.strip()) > 0
+v_country = len(addr_country.strip()) > 0
+v_native = len(native.strip()) > 0
+v_work_lang = len(lang_pairs.strip()) > 0
+v_services = len(selected_services) > 0
+v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
+v_edu_docs = file_edu is not None
+v_ref_doc = file_ref is not None
+
+if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
+    v_country and v_native and v_work_lang and v_services and v_compliance and 
+    v_edu_docs and v_ref_doc):
     
-    if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
-        v_country and v_native and v_work_lang and v_services and v_compliance and 
-        v_edu_docs and v_ref_doc):
-        
-        full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
-        
-        with st.spinner("Processing metadata profiles and routing data package straight to target domain..."):
-            
-            # 1. Compile profile metadata layout
-            profile_report = (
-                f"FIDEL SOFTECH RESOURCE PROFILE DATA\n"
-                f"==================================\n"
-                f"Name: {full_vendor_name}\n"
-                f"Email: {v_email.strip()} | Phone: {v_phone}\n"
-                f"Address: {addr_street}, {addr_city}, {addr_state}, {addr_country}\n"
-                f"Native Language: {native.strip()} | Pairs: {lang_pairs.strip()}\n"
-                f"Services: {', '.join(selected_services)}\n"
-                f"CAT Tools: {', '.join(selected_cat_tools)}\n\n"
-                f"FINANCIAL DATA:\n"
-                f"Bank: {b_name} | Acc Holder: {b_holder}\n"
-                f"Code/Number: {b_code} / {b_acc}\n"
-                f"IFSC/Swift: {b_ifsc} / {b_swift}\n"
-                f"PAN Card: {b_tax} | GST: {b_gst}\n"
-                f"Alternates: PayPal: {pay_paypal} | Payoneer: {pay_payoneer} | ProZ: {pay_proz}"
-            )
-            
-            # 2. Extract and combine document arrays
-            raw_attachments = []
-            files_to_package = [
-                (file_nda, "Signed_NDA"), (file_po, "Signed_PO"), (file_consent, "Signed_Data_Consent"),
-                (file_edu, "Educational_Certificates"), (file_ref, "Reference_Letter"), (file_cert, "Translation_Certificate")
-            ]
-            
-            for file_obj, prefix in files_to_package:
-                if file_obj is not None:
-                    raw_attachments.append((f"{prefix}_{file_obj.name}", file_obj.getvalue()))
-            
-            # 3. Deliver package directly to resolved domain
-            success, diagnostic_msg = send_smart_relay_email(full_vendor_name, profile_report, raw_attachments)
-            
-            if success:
-                st.success(f"🎉 Onboarding Complete! Your profile package has been successfully routed to {TARGET_EMAIL}.")
-            else:
-                st.error(f"❌ {diagnostic_msg}")
-    else:
-        st.error("❌ Submission Failed. Please make sure all mandatory fields (*) are filled out completely.")
+    full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
+    
+    # Compile text configuration summary content
+    profile_report = (
+        f"FIDEL SOFTECH RESOURCE PROFILE DATA\n"
+        f"==================================\n"
+        f"Name: {full_vendor_name}\n"
+        f"Email: {v_email.strip()} | Phone: {v_phone}\n"
+        f"Address: {addr_street}, {addr_city}, {addr_state}, {addr_country}\n"
+        f"Native Language: {native.strip()} | Pairs: {lang_pairs.strip()}\n"
+        f"Services: {', '.join(selected_services)}\n"
+        f"CAT Tools: {', '.join(selected_cat_tools)}\n\n"
+        f"FINANCIAL DATA:\n"
+        f"Bank: {b_name} | Acc Holder: {b_holder}\n"
+        f"Code/Number: {b_code} / {b_acc}\n"
+        f"IFSC/Swift: {b_ifsc} / {b_swift}\n"
+        f"PAN Card: {b_tax} | GST: {b_gst}\n"
+        f"Alternates: PayPal: {pay_paypal} | Payoneer: {pay_payoneer} | ProZ: {pay_proz}"
+    )
+    
+    st.success("✅ Profile completed successfully! Click the button below to save your generated details summary.")
+    
+    # Expose a clean, localized download generation link anchor
+    st.download_button(
+        label="📥 Download Profile Details File",
+        data=profile_report,
+        file_name=f"{full_vendor_name.replace(' ', '_')}_Profile_Details.txt",
+        mime="text/plain",
+        type="primary"
+    )
+    
+    st.info(f"📧 **Next Step:** Please email the downloaded text details sheet along with your signed compliance documents directly to **{TARGET_EMAIL}**.")
+else:
+    st.warning("⚠️ Complete all required fields marked with an asterisk (*) to unlock your Profile Generation download button.")
