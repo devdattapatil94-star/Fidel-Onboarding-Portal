@@ -2,9 +2,18 @@ import streamlit as st
 from datetime import datetime
 import os
 import smtplib
-import dns.resolver
+
+# Securely auto-install dns tools if the cloud container missed the requirements file
+try:
+    import dns.resolver
+except ModuleNotFoundError:
+    os.system("pip install dnspython")
+    import dns.resolver
+
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 from email.mime.base import MIMEBase
 from email import encoders
 
