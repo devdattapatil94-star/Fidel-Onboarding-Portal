@@ -16,6 +16,82 @@ st.set_page_config(
 
 TARGET_EMAIL = "vendor-mgmt@fideltech.com"
 
+# Master list array containing your explicit language directory selections
+LANGUAGES_POOL = [
+    "Afar", "Afrikaans (South Africa)", "Ahrani", "Akan", "Akha", "Albanian", "Amharic", 
+    "Ancient Greek", "Arabic", "Arabic (Egypt)", "Arabic (Oman)", "Arabic (Algeria)", 
+    "Arabic (Bahrain)", "Arabic (Chad)", "Arabic (Iraq)", "Arabic (Jordan)", "Arabic (Kuwait)", 
+    "Arabic (Lebanon)", "Arabic (Libya)", "Arabic (Mauritania)", "Arabic (Morocco)", 
+    "Arabic (Palestinian Territory)", "Arabic (Qatar)", "Arabic (Saudi Arabia)", "Arabic (Sudan)", 
+    "Arabic (Syria)", "Arabic (Tunisia)", "Arabic (United Arab Emirates)", "Arabic (Western Sahara)", 
+    "Arabic (Yemen)", "Armenian", "Assamese", "Asturian (Spain)", "Ateso", "Avar", "Awadhi", 
+    "Aymara", "Azerbaijani", "Azeri (Cyrillic)", "Azeri Latin", "Bagheli", "Bambara", "Bashkir", 
+    "Basque", "Bassa (BSQ)", "Bemba", "Bengali", "Bengali (Bangladesh)", "Berber (Tamazight)", 
+    "Bhili (India)", "Bhojpuri", "Bhutani", "Bihari", "Bikol", "Bislama", "Bodo", "Bosnian (Cyrillic)", 
+    "Bosnian (Latin)", "Breton", "Bulgarian", "Buli", "Bundeli", "Burmese", "Burushaski", 
+    "Burushaski (Pakistan)", "Byelorussian", "Cantonese", "Carolinian", "Catalan", "Catalan (Spain)", 
+    "Cebuano (Philippines)", "Cham", "Chamorro", "Chhattisgarhi (India)", "Chichewa", "Chin (Falam)", 
+    "Chinese (Mandarin)", "Chinese (Simplified)", "Chinese (Singapore)", "Chinese (Traditional)", 
+    "Chinese, Hong Kong", "Chittagonian (CTG)", "Chuukese", "Corsican", "Croatian", "Czech", 
+    "Dandami Maria (India)", "Danish", "Dari", "Dhivehi-Maldivian (Maldives)", "Dholuo", "Dhundari", 
+    "Dinka", "Dioula", "Divehi", "Dogon", "Dogri", "Dothraki", "Dutch", "Dutch (Belgium)", 
+    "Dzongkha (DZ)", "Eastern Armenian", "Eastern Tamang", "Edo(Bini)", "Efik (Africa)", 
+    "English (Australia)", "English (Canada)", "English (Hong Kong)", "English (India)", 
+    "English (Nigeria)", "English (Philippines)", "English (Singapore)", "English (South Africa)", 
+    "English (Switzerland)", "English (UK)", "English (USA)", "English (United Arab Emirates)", 
+    "English(Malaysia)", "English (Asia)", "English (Austria)", "English (Cyprus)", "English (Germany)", 
+    "English (Holland)", "English (Ireland)", "English (Neutral)", "English (New Zealand)", 
+    "Esperanto", "Estonian", "Ewe (Ghana)", "Fante (Fanti) (FAT)", "Faroese (Faroe Islands)", 
+    "Farsi", "Fijian", "Filipino", "Finnish", "Flemish", "French", "French (Belgium)", 
+    "French (Cameroon) (FR CM)", "French (Canada)", "French (France)", "French (Haiti) (FR-Haiti)", 
+    "French (Luxembourg)", "French (Morocco)", "French (Switzerland)", "Frisian", "Fula", 
+    "Galician (Spain)", "Garhwali", "Garo", "Georgian", "German (Austria)", "German (Belgium)", 
+    "German (Germany)", "German (Holland)", "German (Luxembourg)", "German (Switzerland)", 
+    "Gondi", "Greek", "Greenlandic", "Guarani", "Gujarati (India)", "Haitian Creole", "Hakha Chin", 
+    "Haryanvi (BGC)", "Hausa", "Hawaiian", "Hebrew", "Herero (Namibia)", "Hijazi Arabic", 
+    "Hiligaynon", "Hindi", "Hindi Latin", "Hmong", "Hmong (USA)", "Hokkien (Fukienese)", 
+    "Hungarian", "Icelandic", "Igbo", "Ilocano", "India", "Indonesian", "Interlingua", 
+    "Interlingue", "Inuktitut", "Inupiak", "Irish (Ireland)", "Italian", "Italian (Switzerland)", 
+    "Iu Mien", "Jamaican English Creole", "Japanese", "Javanese", "Juba Arabic", "Kabiye", 
+    "Kachin", "Kam Mueang (Lanna) (NOD)", "Kangri", "Kannada (India)", "Kanuri", "Kaonde", 
+    "Karen", "Karenni (Kayah)(eastern)", "Karenni (Kayah)(western)", "Kasem", "Kashmiri", 
+    "Kazakh", "Khashi", "Khasi", "Khmer", "Khmu (KJG)", "Khowar", "Kikongo (Congo)", "Kikuyu", 
+    "Kinyarwanda", "Kirghiz", "Kiribati", "Kirundi (Rundi) (RN)", "Kiswahili (Africa)", 
+    "Klingon", "Konkani (India)", "Korean", "Kosraean", "Kru", "Kuanyama", "Kurdish (Turkey)", 
+    "Kurdish (Iraq)", "Kurdish (Kurmanji)", "Kurdish (Sorani)", "Lambadi", "Lao", "Laothian", 
+    "Latin", "Latvian", "Lingala", "Lithuanian", "Lozi", "Luganda", "Lunda", "Luxembourgish", 
+    "Maasai (MAS)", "Maay", "Macedonian", "Macedonian (MK)", "Maithili", "Malagasy (Madagascar)", 
+    "Malay (Malysia)", "Malay Chinese", "Malayalam (India)", "Malinke", "Maltese", "Manipuri", 
+    "Maori", "Marathi", "Maria-Dandami", "Marshallese", "Marwari", "Masalit", "Meru (Kimeru) (MER)", 
+    "Mewari", "Mien (Iu Mien) (IUM)", "Mirpuri", "Mizo", "Moldavian", "Mongolian", "Montenegrin", 
+    "Morisyen (Mauritian Créole)", "Nagamese", "Nankam", "Nauru", "Navajo", "Ndebele", "Nepali", 
+    "Niuean", "Nkore", "Nobiin", "Northern Sotho (South Africa)", "Norwegian", "Norwegian (Bokmål)", 
+    "Norwegian Bokmaal (Norway)", "Norwegian Nynorsk (Norway)", "Nuer", "Nyanja", "Nyoro", 
+    "Occitan", "Oriya", "Oromo", "Ossetian", "Ottoman Turkish", "Pahari", "Pak Thai (Dambro) (SOU)", 
+    "Palauan", "Pampanga (Kapampangan)", "Pangasinan", "Papiamento", "Pashto", "Persian", 
+    "Pohnpeian", "Polish", "Portuguese", "Portuguese (Brazil)", "Portuguese (Portugal)", 
+    "Portuguese (Angola)", "Portuguese (Mozambique)", "Punjabi", "Punjabi (India)", 
+    "Punjabi (Pakistan)", "Quechua", "Quenya", "Ratotongan", "Rhaeto-Romance", "Rohingya", 
+    "Romanian", "Rundi", "Russian", "Saint Lucian Creole French", "Samoan", 
+    "Sango (Central African Republic)", "Sangro", "Sanskrit", "Santali", "Saraiki", "Sardinian", 
+    "Scottish Gaelic (Scotland)", "Sepedi", "Serbian", "Serbian (Cyrillic)", "Serbian (Latin)", 
+    "Serbian Montenegro (Cyrillic)", "Serbian Montenegro (Latin)", "Serbo-Croatian (SH)", 
+    "Seselwa Creole French", "Sesotho", "Setswana (Africa)", "Shan", "Sherpa (Nepal)", "Shona", 
+    "Sindarin", "Sindhi", "Singhalese", "Siswati", "Slovak", "Slovene", "Slovenian (SL)", 
+    "Somali", "Sorbian (Lower)", "Sorbian (Upper)", "Sotho", "Spanish (Argentina)", "Spanish (Bolivia)", 
+    "Spanish (Chile)", "Spanish (Colombia)", "Spanish (Costa Rica)", "Spanish (Cuba)", 
+    "Spanish (Dominican Republic)", "Spanish (Ecuador)", "Spanish (El Salvador)", "Spanish (Guatemala)", 
+    "Spanish (Honduras)", "Spanish (Latin America)", "Spanish (Mexico)", "Spanish (Nicaragua)", 
+    "Spanish (Panama)", "Spanish (Paraguay)", "Spanish (Spain)", "Spanish (USA)", "Sundanese (SU)", 
+    "Swahili (Burundi)", "Swahili (Kenya)", "Swahili (Rwanda)", "Swahili (Tanzania)", "Swahili (Uganda)", 
+    "Swedish", "Sylheti (SYL)", "Syriac", "Tagalog (TL)", "Tai Dam (Vietnam)", "Tajik (TG)", 
+    "Tamil", "Tamil Sri-Lankan", "Telugu", "Tetum", "Thai (TH)", "Tibetan (BO)", "Tigrinya (TI)", 
+    "Tok Pisin", "Tonga (Polynesian)", "Tongan", "Tulu", "Turkish", "Turkmen (TK)", "Twi (TW)", 
+    "Ukrainian", "Upper Guinea Creole", "Urdu", "Urdu (India)", "Uyghur", "Uzbek (UZ)", 
+    "Venda (VE)", "Vietnamese (VI)", "Waray-Waray (WW)", "Xhosa (XH)", "Xârâcùù (New Caledonia)", 
+    "Yagwoia", "Yiddish (Israel)", "Yiddish (USA)", "Yoruba", "Zomi/Zou", "Zulu (South Africa)"
+]
+
 # Helper function to read local template files securely
 def get_file_data(filename):
     if os.path.exists(filename):
@@ -81,7 +157,10 @@ with col_addr2:
 st.markdown("#### 🎓 Section 2: Qualifications & Languages")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
-lang_pairs = st.text_input("Working Language Combinations *", placeholder="e.g., English-Japanese, German-English")
+
+# Dynamic source and target multi-select selection configurations
+selected_source_langs = st.multiselect("Source Language(s) *:", LANGUAGES_POOL)
+selected_target_langs = st.multiselect("Target Language(s) *:", LANGUAGES_POOL)
  
 cat_options = ["Across", "Amazon (ATMS)", "Bureau Works (BWX)", "Crowdin", "MemoQ", "Phrase", "SDL Trados 2022", "XTM Cloud"]
 selected_cat_tools = st.multiselect("Proficient in which of the following CAT Tools:", cat_options)
@@ -217,19 +296,21 @@ if st.button("Submit Onboarding Registration", type="primary"):
     v_city = bool(addr_city and addr_city.strip())
     v_country = bool(addr_country and addr_country.strip())
     v_native = bool(native and native.strip())
-    v_work_lang = bool(lang_pairs and lang_pairs.strip())
+    
+    # Reworked multi-select validations to guarantee selections are present
+    v_source_lang = len(selected_source_langs) > 0
+    v_target_lang = len(selected_target_langs) > 0
     v_services = len(selected_services) > 0
     
     v_track = test_track != "-- Choose Track --"
     v_test_file = file_test_attempt is not None
     
-    # Section 6 validation includes mandatory CV file check
     v_compliance = (file_cv is not None) and (file_nda is not None) and (file_po is not None) and (file_consent is not None)
     v_section7 = (file_edu is not None) and (file_ref is not None)
 
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
-        v_country and v_native and v_work_lang and v_services and v_track and 
-        v_test_file and v_compliance and v_section7):
+        v_country and v_native and v_source_lang and v_target_lang and v_services and 
+        v_track and v_test_file and v_compliance and v_section7):
         st.session_state.submitted = True
         st.rerun()
     else:
@@ -242,6 +323,7 @@ if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
     clean_name = full_vendor_name.replace(' ', '_')
     
+    # Horizontal structural row matrix formatting
     vendor_data = {
         "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
         "First Name": [f_name.strip()],
@@ -256,7 +338,8 @@ if st.session_state.submitted:
         "Country": [addr_country.strip()],
         "Native Language": [native.strip()],
         "Experience (Years)": [exp],
-        "Language Combinations": [lang_pairs.strip()],
+        "Source Language Selection": [', '.join(selected_source_langs)],
+        "Target Language Selection": [', '.join(selected_target_langs)],
         "CAT Tools": [', '.join(selected_cat_tools) if selected_cat_tools else "None"],
         "Domain Expertise": [', '.join(selected_domains) if selected_domains else "None"],
         "Services Provided": [', '.join(selected_services)],
