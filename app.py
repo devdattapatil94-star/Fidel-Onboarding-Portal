@@ -86,7 +86,6 @@ lang_pairs = st.text_input("Working Language Combinations *", placeholder="e.g.,
 cat_options = ["Across", "Amazon (ATMS)", "Bureau Works (BWX)", "Crowdin", "MemoQ", "Phrase", "SDL Trados 2022", "XTM Cloud"]
 selected_cat_tools = st.multiselect("Proficient in which of the following CAT Tools:", cat_options)
  
-# Tailored domain specific expertise list layout array
 domain_options = [
     "Banking", "Banking & Finance", "Dentistry", "E-learning", "Economics", 
     "Education", "Electrical", "Electronics", "Electronics Appliances", 
@@ -98,7 +97,6 @@ domain_options = [
 ]
 selected_domains = st.multiselect("Domain Expertise:", domain_options)
  
-# Tailored specific service lines selection list layout array
 services_options = [
     "Back Translation (Chars)", "Back Translation (Words)", "Closed Captioning", 
     "Data Annotation", "Data Collection", "Editing", 
@@ -190,6 +188,7 @@ file_test_attempt = st.file_uploader("Upload Your Completed Translation Test Fil
 # 📤 Section 6: Compliance Documentation Submission
 # ==========================================
 st.markdown("#### 📤 Section 6: Compliance Documentation Submission")
+file_cv = st.file_uploader("Upload Latest CV / Resume *", type=['pdf', 'doc', 'docx'])
 file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
 file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
 file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
@@ -223,7 +222,9 @@ if st.button("Submit Onboarding Registration", type="primary"):
     
     v_track = test_track != "-- Choose Track --"
     v_test_file = file_test_attempt is not None
-    v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
+    
+    # Section 6 validation includes mandatory CV file check
+    v_compliance = (file_cv is not None) and (file_nda is not None) and (file_po is not None) and (file_consent is not None)
     v_section7 = (file_edu is not None) and (file_ref is not None)
 
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
@@ -286,6 +287,7 @@ if st.session_state.submitted:
         zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_data)
         
         uploaded_files = [
+            (file_cv, "CV_Resume"),
             (file_nda, "Signed_NDA"), 
             (file_po, "Signed_PO"), 
             (file_consent, "Signed_Data_Consent"),
