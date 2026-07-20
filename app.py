@@ -86,7 +86,16 @@ lang_pairs = st.text_input("Working Language Combinations *", placeholder="e.g.,
 cat_options = ["Across", "Amazon (ATMS)", "Bureau Works (BWX)", "Crowdin", "MemoQ", "Phrase", "SDL Trados 2022", "XTM Cloud"]
 selected_cat_tools = st.multiselect("Proficient in which of the following CAT Tools:", cat_options)
  
-domain_options = ["Accounting", "Administrative", "Advertising", "Artificial Intelligence", "Banking & Finance", "Legal", "Medical"]
+# Tailored domain specific expertise list layout array
+domain_options = [
+    "Banking", "Banking & Finance", "Dentistry", "E-learning", "Economics", 
+    "Education", "Electrical", "Electronics", "Electronics Appliances", 
+    "Employment Handbooks", "Finance", "General", "Health", "Health & Safety", 
+    "Help Documents", "Information Technology", "Insurance", 
+    "Law Patents, Trademarks, Copyrights", "Legal", "Logistics", 
+    "Manufacturing", "Marketing", "Medical", "Medical Diseases", 
+    "Patents", "Pharmaceuticals", "Retail", "Telecommunication", "Transport"
+]
 selected_domains = st.multiselect("Domain Expertise:", domain_options)
  
 services_options = ["AI Voice-Over", "Editing", "Localization Testing", "Subtitling", "Translation"]
@@ -195,7 +204,6 @@ if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
 if st.button("Submit Onboarding Registration", type="primary"):
-    # Clean check logic handling text values directly
     v_first_name = bool(f_name and f_name.strip())
     v_last_name = bool(l_name and l_name.strip())
     v_email_id = bool(v_email and v_email.strip())
@@ -206,15 +214,11 @@ if st.button("Submit Onboarding Registration", type="primary"):
     v_work_lang = bool(lang_pairs and lang_pairs.strip())
     v_services = len(selected_services) > 0
     
-    # Check logic handling file drop criteria
     v_track = test_track != "-- Choose Track --"
     v_test_file = file_test_attempt is not None
     v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
-    
-    # Section 7 specific criteria (Educational and Reference files are required, Translation Cert is optional)
     v_section7 = (file_edu is not None) and (file_ref is not None)
 
-    # Trigger complete strict validation execution pass
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
         v_country and v_native and v_work_lang and v_services and v_track and 
         v_test_file and v_compliance and v_section7):
@@ -230,7 +234,6 @@ if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
     clean_name = full_vendor_name.replace(' ', '_')
     
-    # Horizontal column formatting strategy matching matrix layout perfectly
     vendor_data = {
         "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
         "First Name": [f_name.strip()],
@@ -266,7 +269,6 @@ if st.session_state.submitted:
     
     df_individual = pd.DataFrame(vendor_data)
     
-    # Compress matrix out to in-memory byte buffer streams
     excel_buffer = io.BytesIO()
     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
         df_individual.to_excel(writer, index=False, sheet_name="Vendor Onboarding Matrix")
@@ -293,7 +295,7 @@ if st.session_state.submitted:
                 
     zip_buffer.seek(0)
     
-    st.info("ℹ️ Your registration data files have been verified and bundled successfully.")
+    st.info("ℹ fountain: Your registration data files have been verified and bundled successfully.")
     st.markdown("---")
     st.markdown("### 📧 Final Step: Dispatch Packages to Vendor Management")
     st.write("Follow these two quick steps to send your documentation straight to our team:")
@@ -303,9 +305,9 @@ if st.session_state.submitted:
     with act_col1:
         st.markdown("**Step 1:** Download the complete package.")
         st.download_button(
-            label="📥 Download Onboarding Documents (.zip)",
+            label="📥 Download Onboarding Package (.zip)",
             data=zip_buffer.getvalue(),
-            file_name=f"{clean_name}_Onboarding_Documents.zip",
+            file_name=f"{clean_name}_Onboarding_Package.zip",
             mime="application/zip",
             type="primary",
             use_container_width=True
