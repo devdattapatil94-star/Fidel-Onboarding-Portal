@@ -192,27 +192,28 @@ if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
 if st.button("Submit Onboarding Registration", type="primary"):
-    # Clean check for text values
-    v_first_name = len(f_name.strip()) > 0
-    v_last_name = len(l_name.strip()) > 0
-    v_email_id = len(v_email.strip()) > 0
-    v_contact = len(v_phone.strip()) > 0
-    v_city = len(addr_city.strip()) > 0
-    v_country = len(addr_country.strip()) > 0
-    v_native = len(native.strip()) > 0
-    v_work_lang = len(lang_pairs.strip()) > 0
+    # Clean check logic handling text values directly
+    v_first_name = bool(f_name and f_name.strip())
+    v_last_name = bool(l_name and l_name.strip())
+    v_email_id = bool(v_email and v_email.strip())
+    v_contact = bool(v_phone_local and v_phone_local.strip())
+    v_city = bool(addr_city and addr_city.strip())
+    v_country = bool(addr_country and addr_country.strip())
+    v_native = bool(native and native.strip())
+    v_work_lang = bool(lang_pairs and lang_pairs.strip())
     v_services = len(selected_services) > 0
     
-    # Check for mandatory file drops and track selections
+    # Check logic handling file drop criteria
     v_track = test_track != "-- Choose Track --"
     v_test_file = file_test_attempt is not None
     v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
 
-    # Strictly check only the critical fields marked with *
+    # Trigger validation check baseline execution pass
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
         v_country and v_native and v_work_lang and v_services and v_track and 
         v_test_file and v_compliance):
         st.session_state.submitted = True
+        st.rerun()
     else:
         st.error("❌ Submission Failed. Please make sure all mandatory fields (*) are complete and all files are uploaded.")
 
@@ -223,59 +224,48 @@ if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
     clean_name = full_vendor_name.replace(' ', '_')
     
-    # 1. Construct the Excel row data matrix
+    # Horizontal column formatting strategy matching your matrix layout exactly
     vendor_data = {
-        "Field Matrix": [
-            "Registration Date", "First Name", "Last Name", "Email ID", "Contact Number",
-            "Availability Status", "Street Address", "City", "State", "Zip Code", "Country",
-            "Native Language", "Experience (Years)", "Language Combinations", "CAT Tools",
-            "Domain Expertise", "Services Provided", "Bank Name", "Account Holder",
-            "Bank Code", "Account Number", "IFSC Code", "Swift Code", "PAN Card", "GST Number",
-            "PayPal ID", "Payoneer ID", "ProZ Link", "Translation Test Track", "Test File Name"
-        ],
-        "Vendor Response Value": [
-            datetime.now().strftime("%Y-%m-%d %H:%M"),
-            f_name.strip(),
-            l_name.strip(),
-            v_email.strip(),
-            v_phone,
-            avail,
-            f"{addr_street} {addr_street2}".strip(),
-            addr_city.strip(),
-            addr_state.strip(),
-            addr_zip.strip(),
-            addr_country.strip(),
-            native.strip(),
-            exp,
-            lang_pairs.strip(),
-            ', '.join(selected_cat_tools) if selected_cat_tools else "None",
-            ', '.join(selected_domains) if selected_domains else "None",
-            ', '.join(selected_services),
-            b_name.strip(),
-            b_holder.strip(),
-            b_code.strip(),
-            b_acc.strip(),
-            b_ifsc.strip(),
-            b_swift.strip(),
-            b_tax.strip(),
-            b_gst.strip(),
-            pay_paypal.strip(),
-            pay_payoneer.strip(),
-            pay_proz.strip(),
-            test_track,
-            file_test_attempt.name
-        ]
+        "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
+        "First Name": [f_name.strip()],
+        "Last Name": [l_name.strip()],
+        "Email ID": [v_email.strip()],
+        "Contact Number": [v_phone],
+        "Availability Status": [avail],
+        "Street Address": [f"{addr_street} {addr_street2}".strip()],
+        "City": [addr_city.strip()],
+        "State": [addr_state.strip()],
+        "Zip Code": [addr_zip.strip()],
+        "Country": [addr_country.strip()],
+        "Native Language": [native.strip()],
+        "Experience (Years)": [exp],
+        "Language Combinations": [lang_pairs.strip()],
+        "CAT Tools": [', '.join(selected_cat_tools) if selected_cat_tools else "None"],
+        "Domain Expertise": [', '.join(selected_domains) if selected_domains else "None"],
+        "Services Provided": [', '.join(selected_services)],
+        "Bank Name": [b_name.strip()],
+        "Account Holder": [b_holder.strip()],
+        "Bank Code": [b_code.strip()],
+        "Account Number": [b_acc.strip()],
+        "IFSC Code": [b_ifsc.strip()],
+        "Swift Code": [b_swift.strip()],
+        "PAN Card": [b_tax.strip()],
+        "GST Number": [b_gst.strip()],
+        "PayPal ID": [pay_paypal.strip()],
+        "Payoneer ID": [pay_payoneer.strip()],
+        "ProZ Link": [pay_proz.strip()],
+        "Translation Test Track": [test_track],
+        "Test File Name": [file_test_attempt.name]
     }
     
     df_individual = pd.DataFrame(vendor_data)
     
-    # 2. Write the Excel document into a binary buffer stream in memory
+    # Compress matrix out to in-memory byte buffer streams
     excel_buffer = io.BytesIO()
     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-        df_individual.to_excel(writer, index=False, sheet_name="Vendor Details")
+        df_individual.to_excel(writer, index=False, sheet_name="Vendor Onboarding Matrix")
     excel_data = excel_buffer.getvalue()
     
-    # 3. Process memory buffer streams to compress the Excel + uploaded files into a ZIP folder
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
         zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_data)
