@@ -203,7 +203,7 @@ with col_fin2:
  
 col_tax1, col_tax2 = st.columns(2)
 with col_tax1:
-    b_tax = st.text_input("PAN Card")
+    b_tax = st.text_input("PAN Card Number")
 with col_tax2:
     # Updated text label with conditional visibility reference
     b_gst = st.text_input("GST Number (if applicable)")
