@@ -98,7 +98,14 @@ domain_options = [
 ]
 selected_domains = st.multiselect("Domain Expertise:", domain_options)
  
-services_options = ["AI Voice-Over", "Editing", "Localization Testing", "Subtitling", "Translation"]
+# Tailored specific service lines selection list layout array
+services_options = [
+    "Back Translation (Chars)", "Back Translation (Words)", "Closed Captioning", 
+    "Data Annotation", "Data Collection", "Editing", 
+    "Machine Translation and Full Post-Editing", "Machine Translation and Light Post-Editing", 
+    "Post-Editing", "Proofreading", "Review", "Revision", 
+    "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
+]
 selected_services = st.multiselect("Services you provide *:", services_options)
  
 st.markdown("#### 🏦 Section 3: Payment Details")
@@ -295,7 +302,7 @@ if st.session_state.submitted:
                 
     zip_buffer.seek(0)
     
-    st.info("ℹ fountain: Your registration data files have been verified and bundled successfully.")
+    st.info("ℹ️ Your registration data files have been verified and bundled successfully.")
     st.markdown("---")
     st.markdown("### 📧 Final Step: Dispatch Packages to Vendor Management")
     st.write("Follow these two quick steps to send your documentation straight to our team:")
