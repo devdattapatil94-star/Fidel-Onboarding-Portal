@@ -303,9 +303,9 @@ if st.session_state.submitted:
     with act_col1:
         st.markdown("**Step 1:** Download the complete package.")
         st.download_button(
-            label="📥 Download Onboarding Package (.zip)",
+            label="📥 Download Onboarding Documents (.zip)",
             data=zip_buffer.getvalue(),
-            file_name=f"{clean_name}_Onboarding_Package.zip",
+            file_name=f"{clean_name}_Onboarding_Documents.zip",
             mime="application/zip",
             type="primary",
             use_container_width=True
