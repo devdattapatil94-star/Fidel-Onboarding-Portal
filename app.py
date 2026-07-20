@@ -161,7 +161,6 @@ exp = st.slider("Years of Translation Experience", 0, 40, 2)
 selected_source_langs = st.multiselect("Source Language(s) *:", LANGUAGES_POOL)
 selected_target_langs = st.multiselect("Target Language(s) *:", LANGUAGES_POOL)
  
-# Tailored CAT Tools list array update execution
 cat_options = [
     "MateCat", "MateSub", "MemoQ", "Phrase", "SDL Trados 2019", 
     "SDL Trados 2021", "SDL Trados 2022", "Similis", "SmartCAT", 
@@ -206,7 +205,8 @@ col_tax1, col_tax2 = st.columns(2)
 with col_tax1:
     b_tax = st.text_input("PAN Card")
 with col_tax2:
-    b_gst = st.text_input("GST Number")
+    # Updated text label with conditional visibility reference
+    b_gst = st.text_input("GST Number (if applicable)")
  
 st.markdown("##### 💳 Alternative Global Payment Systems")
 col_alt1, col_alt2 = st.columns(2)
