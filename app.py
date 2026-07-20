@@ -178,10 +178,13 @@ file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
 file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
 file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
  
-st.markdown("#### 🏅 Section 7: Additional Credentials & Certifications (Optional)")
+# ==========================================
+# 🏅 Section 7: Additional Credentials & Certifications
+# ==========================================
+st.markdown("#### 🏅 Section 7: Additional Credentials & Certifications")
 file_cert = st.file_uploader("Upload Translation Certificate (if any)", type=['pdf', 'jpg', 'png'])
-file_edu = st.file_uploader("Upload Educational Qualification Certificates", type=['pdf', 'jpg', 'png'])
-file_ref = st.file_uploader("Upload Reference or Recommendation Letter", type=['pdf', 'doc', 'docx'])
+file_edu = st.file_uploader("Upload Educational Qualification Certificates *", type=['pdf', 'jpg', 'png'])
+file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=['pdf', 'doc', 'docx'])
  
 st.markdown("---")
  
@@ -207,11 +210,14 @@ if st.button("Submit Onboarding Registration", type="primary"):
     v_track = test_track != "-- Choose Track --"
     v_test_file = file_test_attempt is not None
     v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
+    
+    # Section 7 specific criteria (Educational and Reference files are required, Translation Cert is optional)
+    v_section7 = (file_edu is not None) and (file_ref is not None)
 
-    # Trigger validation check baseline execution pass
+    # Trigger complete strict validation execution pass
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
         v_country and v_native and v_work_lang and v_services and v_track and 
-        v_test_file and v_compliance):
+        v_test_file and v_compliance and v_section7):
         st.session_state.submitted = True
         st.rerun()
     else:
@@ -224,7 +230,7 @@ if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
     clean_name = full_vendor_name.replace(' ', '_')
     
-    # Horizontal column formatting strategy matching your matrix layout exactly
+    # Horizontal column formatting strategy matching matrix layout perfectly
     vendor_data = {
         "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
         "First Name": [f_name.strip()],
