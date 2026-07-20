@@ -158,11 +158,15 @@ st.markdown("#### 🎓 Section 2: Qualifications & Languages")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 
-# Dynamic source and target multi-select selection configurations
 selected_source_langs = st.multiselect("Source Language(s) *:", LANGUAGES_POOL)
 selected_target_langs = st.multiselect("Target Language(s) *:", LANGUAGES_POOL)
  
-cat_options = ["Across", "Amazon (ATMS)", "Bureau Works (BWX)", "Crowdin", "MemoQ", "Phrase", "SDL Trados 2022", "XTM Cloud"]
+# Tailored CAT Tools list array update execution
+cat_options = [
+    "MateCat", "MateSub", "MemoQ", "Phrase", "SDL Trados 2019", 
+    "SDL Trados 2021", "SDL Trados 2022", "Similis", "SmartCAT", 
+    "Smartling", "Wordfast"
+]
 selected_cat_tools = st.multiselect("Proficient in which of the following CAT Tools:", cat_options)
  
 domain_options = [
@@ -297,7 +301,6 @@ if st.button("Submit Onboarding Registration", type="primary"):
     v_country = bool(addr_country and addr_country.strip())
     v_native = bool(native and native.strip())
     
-    # Reworked multi-select validations to guarantee selections are present
     v_source_lang = len(selected_source_langs) > 0
     v_target_lang = len(selected_target_langs) > 0
     v_services = len(selected_services) > 0
@@ -323,7 +326,6 @@ if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
     clean_name = full_vendor_name.replace(' ', '_')
     
-    # Horizontal structural row matrix formatting
     vendor_data = {
         "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
         "First Name": [f_name.strip()],
