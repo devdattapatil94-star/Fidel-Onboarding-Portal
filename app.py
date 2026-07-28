@@ -70,7 +70,18 @@ native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 lang_pairs = st.text_input("Working Language Combinations *", placeholder="e.g., English-Japanese, German-English")
 
-cat_options = ["Across", "Amazon (ATMS)", "Bureau Works (BWX)", "Crowdin", "MemoQ", "Phrase", "SDL Trados 2022", "XTM Cloud"]
+# UPDATED CAT TOOLS LIST
+cat_options = [
+    "MateCat", 
+    "MemoQ", 
+    "Memsource", 
+    "Phrase", 
+    "SDL Trados 2019", 
+    "SDL Trados 2021", 
+    "SDL Trados 2022", 
+    "SmartCAT", 
+    "WordFast"
+]
 selected_cat_tools = st.multiselect("Proficient in which of the following CAT Tools:", cat_options)
 
 domain_options = ["Accounting", "Administrative", "Advertising", "Artificial Intelligence", "Banking & Finance", "Legal", "Medical"]
@@ -79,7 +90,7 @@ selected_domains = st.multiselect("Domain Expertise:", domain_options)
 services_options = ["AI Voice-Over", "Editing", "Localization Testing", "Subtitling", "Translation"]
 selected_services = st.multiselect("Services you provide *:", services_options)
 
-# NEW MANDATORY RATE FIELD SECTION
+# MANDATORY RATE FIELD SECTION
 st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
 rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
 with rate_curr_col:
@@ -166,7 +177,7 @@ if st.button("Submit Profile Record", type="primary"):
     v_native = len(native.strip()) > 0
     v_work_lang = len(lang_pairs.strip()) > 0
     v_services = len(selected_services) > 0
-    v_rates = (rate_per_word > 0.0) or (rate_per_hour > 0.0)  # Mandatory rate validation
+    v_rates = (rate_per_word > 0.0) or (rate_per_hour > 0.0)
     v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
     v_edu_docs = file_edu is not None
     v_ref_doc = file_ref is not None
