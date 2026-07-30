@@ -22,7 +22,7 @@ with col_logo:
 with col_title:
     st.title("Fidel Softech Resource Onboarding")
 
-st.markdown("Please complete the official empanelment profile form below and upload your signed compliance agreements.")
+st.markdown("Please complete the official empanelment profile form below and upload your signed compliance agreements and test assignments.")
 st.markdown("---")
 
 st.subheader("📄 Resource Empanelment Profile")
@@ -66,11 +66,10 @@ with col_addr2:
 
 # --- SECTION 2 ---
 st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
-native = st.text_input("Native Language *", placeholder="e.g., Japanese")
+native = st.text_input("Native Language *", placeholder="e.g., Japanese, Hindi, Marathi")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
-lang_pairs = st.text_input("Working Language Combinations *", placeholder="e.g., English-Japanese, German-English")
+lang_pairs = st.text_input("Working Language Combinations *", placeholder="e.g., English-Japanese, English-Hindi")
 
-# UPDATED CAT TOOLS LIST
 cat_options = [
     "MateCat", 
     "MemoQ", 
@@ -90,7 +89,6 @@ selected_domains = st.multiselect("Domain Expertise:", domain_options)
 services_options = ["AI Voice-Over", "Editing", "Localization Testing", "Subtitling", "Translation"]
 selected_services = st.multiselect("Services you provide *:", services_options)
 
-# MANDATORY RATE FIELD SECTION
 st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
 rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
 with rate_curr_col:
@@ -128,8 +126,9 @@ with col_alt1:
 with col_alt2:
     pay_proz = st.text_input("ProZ*Pay Link")
 
-# --- SECTION 4 ---
-st.markdown("#### 📥 Section 4: Download Official Documents")
+# --- SECTION 4: DOWNLOAD DOCUMENTS & TEST FILES ---
+st.markdown("#### 📥 Section 4: Download Official Forms & Translation Test Packages")
+
 def get_file_data(filename):
     if os.path.exists(filename):
         try:
@@ -142,20 +141,36 @@ def get_file_data(filename):
 nda_data = get_file_data("Fidel_NDA_Ver 1.3.pdf")
 po_data = get_file_data("Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf")
 consent_data = get_file_data("Fidel Consent Form.pdf")
+test_jp_data = get_file_data("Japanese_Translation_Test.pdf")
+test_in_data = get_file_data("Indian_Languages_Translation_Test.pdf")
 
+# Empanelment Documents
+st.markdown("##### 📋 Empanelment Templates")
 d_col1, d_col2, d_col3 = st.columns(3)
 with d_col1:
-    st.download_button("📥 Download NDA Template", data=nda_data if nda_data else b"", file_name="Fidel_NDA_Ver 1.3.pdf", mime="application/pdf", disabled=(len(nda_data) == 0))
+    st.download_button("📥 NDA Template", data=nda_data if nda_data else b"", file_name="Fidel_NDA_Ver 1.3.pdf", mime="application/pdf", disabled=(len(nda_data) == 0))
 with d_col2:
-    st.download_button("📥 Download PO Terms", data=po_data if po_data else b"", file_name="Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf", mime="application/pdf", disabled=(len(po_data) == 0))
+    st.download_button("📥 PO Terms", data=po_data if po_data else b"", file_name="Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf", mime="application/pdf", disabled=(len(po_data) == 0))
 with d_col3:
-    st.download_button("📥 Download Consent Form", data=consent_data if consent_data else b"", file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
+    st.download_button("📥 Consent Form", data=consent_data if consent_data else b"", file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
 
-# --- SECTION 5 ---
-st.markdown("#### 📤 Section 5: Compliance Documentation Submission")
+# Translation Test Files
+st.markdown("##### 🧪 Translation Test Files (Indian & Japanese Linguists)")
+t_col1, t_col2 = st.columns(2)
+with t_col1:
+    st.download_button("📝 Download Japanese Test Package", data=test_jp_data if test_jp_data else b"", file_name="Japanese_Translation_Test.pdf", mime="application/pdf", disabled=(len(test_jp_data) == 0))
+with t_col2:
+    st.download_button("📝 Download Indian Languages Test Package", data=test_in_data if test_in_data else b"", file_name="Indian_Languages_Translation_Test.pdf", mime="application/pdf", disabled=(len(test_in_data) == 0))
+
+# --- SECTION 5: COMPLIANCE & RESUME UPLOADS ---
+st.markdown("#### 📤 Section 5: Compliance Documentation & Resume Submission")
+
+# Added Resume / CV upload option
+file_resume = st.file_uploader("Upload Updated Resume / CV *", type=['pdf', 'doc', 'docx'])
 file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
 file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
 file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
+file_test_completed = st.file_uploader("Upload Completed Translation Test File (if applicable)", type=['pdf', 'doc', 'docx', 'zip'])
 
 # --- SECTION 6 ---
 st.markdown("#### 🏅 Section 6: Additional Credentials & Certifications")
@@ -178,13 +193,14 @@ if st.button("Submit Profile Record", type="primary"):
     v_work_lang = len(lang_pairs.strip()) > 0
     v_services = len(selected_services) > 0
     v_rates = (rate_per_word > 0.0) or (rate_per_hour > 0.0)
+    v_resume = file_resume is not None
     v_compliance = (file_nda is not None) and (file_po is not None) and (file_consent is not None)
     v_edu_docs = file_edu is not None
     v_ref_doc = file_ref is not None
     
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
         v_country and v_native and v_work_lang and v_services and v_rates and 
-        v_compliance and v_edu_docs and v_ref_doc):
+        v_resume and v_compliance and v_edu_docs and v_ref_doc):
         
         with st.spinner("Submitting..."):
             try:
@@ -200,11 +216,14 @@ if st.button("Submit Profile Record", type="primary"):
                             "bytes": b64_data
                         })
                 
+                package_file(file_resume, "Resume_CV")
                 package_file(file_nda, "Signed_NDA")
                 package_file(file_po, "Signed_PO")
                 package_file(file_consent, "Signed_Data_Consent")
                 package_file(file_edu, "Educational_Certificates")
                 package_file(file_ref, "Reference_Letter")
+                if file_test_completed:
+                    package_file(file_test_completed, "Completed_Translation_Test")
                 if file_cert:
                     package_file(file_cert, "Translation_Certificate")
                 
@@ -233,7 +252,7 @@ if st.button("Submit Profile Record", type="primary"):
                 response = requests.post(GOOGLE_WEBHOOK_URL, json=json_data)
                 
                 if response.status_code == 200 and "error" not in response.text.lower():
-                    st.success("Empanelment Complete!")
+                    st.success("Empanelment & Test Submission Complete!")
                 else:
                     st.error(f"❌ Upload Bridge Warning: {response.text}")
                     
@@ -251,6 +270,7 @@ if st.button("Submit Profile Record", type="primary"):
         if not v_work_lang: missing_fields.append("Working Language Combinations")
         if not v_services: missing_fields.append("Services you provide")
         if not v_rates: missing_fields.append("Mandatory Service Rates")
+        if not v_resume: missing_fields.append("Updated Resume / CV")
         if not v_compliance: missing_fields.append("Compliance Documentation Submission")
         if not v_edu_docs: missing_fields.append("Educational Qualification Certificates")
         if not v_ref_doc: missing_fields.append("Reference or Recommendation Letter")
