@@ -4,7 +4,7 @@ import os
 import requests
 import base64
 
-# Set up the tab title and use the local logo for the browser icon if available
+# --- PAGE CONFIGURATION & BRANDING ---
 logo_path = "FIDEL.NSE.png"
 st.set_page_config(
     page_title="Fidel Softech Resource Onboarding", 
@@ -12,7 +12,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Render the company logo and the portal title
+# Header Section
 col_logo, col_title = st.columns([1, 4])
 with col_logo:
     if os.path.exists(logo_path):
@@ -27,7 +27,9 @@ st.markdown("---")
 
 st.subheader("📄 Resource Empanelment Profile")
 
-# --- SECTION 1 ---
+# ==========================================
+# --- SECTION 1: PERSONAL INFORMATION ---
+# ==========================================
 st.markdown("#### 👤 Section 1: Personal Information")
 col1, col2 = st.columns(2)
 with col1:
@@ -64,7 +66,10 @@ with col_addr2:
     addr_city = st.text_input("City *")
     addr_country = st.text_input("Country *")
 
-# --- SECTION 2 ---
+
+# ========================================================
+# --- SECTION 2: QUALIFICATIONS, LANGUAGES & RATES ---
+# ========================================================
 st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese, Hindi, Marathi")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
@@ -89,6 +94,7 @@ selected_domains = st.multiselect("Domain Expertise:", domain_options)
 services_options = ["AI Voice-Over", "Editing", "Localization Testing", "Subtitling", "Translation"]
 selected_services = st.multiselect("Services you provide *:", services_options)
 
+# Mandatory Pricing Structure
 st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
 rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
 with rate_curr_col:
@@ -98,7 +104,10 @@ with rate_trans_col:
 with rate_edit_col:
     rate_per_hour = st.number_input("Editing/Review Rate (per hour) *", min_value=0.00, step=0.50, format="%.2f")
 
-# --- SECTION 3 ---
+
+# ==========================================
+# --- SECTION 3: PAYMENT DETAILS ---
+# ==========================================
 st.markdown("#### 🏦 Section 3: Payment Details")
 col_fin1, col_fin2 = st.columns(2)
 with col_fin1:
@@ -126,7 +135,10 @@ with col_alt1:
 with col_alt2:
     pay_proz = st.text_input("ProZ*Pay Link")
 
-# --- SECTION 4: DOWNLOAD DOCUMENTS & DYNAMIC TEST SELECTION ---
+
+# ==========================================================
+# --- SECTION 4: DOWNLOAD FORMS & DYNAMIC TEST SELECTION ---
+# ==========================================================
 st.markdown("#### 📥 Section 4: Download Official Forms & Translation Test Packages")
 
 def get_file_data(filename):
@@ -142,7 +154,7 @@ nda_data = get_file_data("Fidel_NDA_Ver 1.3.pdf")
 po_data = get_file_data("Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf")
 consent_data = get_file_data("Fidel Consent Form.pdf")
 
-# Empanelment Documents
+# Empanelment Template Downloads
 st.markdown("##### 📋 Empanelment Templates")
 d_col1, d_col2, d_col3 = st.columns(3)
 with d_col1:
@@ -152,7 +164,7 @@ with d_col2:
 with d_col3:
     st.download_button("📥 Consent Form", data=consent_data if consent_data else b"", file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
 
-# DYNAMIC DROPDOWN TEST SELECTION
+# Dynamic Dropdown Test Selection
 st.markdown("##### 🧪 Select & Download Translation Test File")
 test_option = st.selectbox(
     "Select Your Test Language Pair / Domain:",
@@ -165,28 +177,31 @@ test_option = st.selectbox(
     ]
 )
 
-# File Mapping based on Selection
-selected_test_file = ""
-if test_option == "English to Japanese Test":
-    selected_test_file = "English_to_Japanese_Test.pdf"
-elif test_option == "Japanese to English Test":
-    selected_test_file = "Japanese_to_English_Test.pdf"
-elif test_option == "Indian Languages Test (Hindi, Marathi, Tamil, etc.)":
-    selected_test_file = "Indian_Languages_Translation_Test.pdf"
-elif test_option == "Other Regional / Global Languages Test":
-    selected_test_file = "General_Translation_Test.pdf"
+test_filename_map = {
+    "English to Japanese Test": "English_to_Japanese_Test.pdf",
+    "Japanese to English Test": "Japanese_to_English_Test.pdf",
+    "Indian Languages Test (Hindi, Marathi, Tamil, etc.)": "Indian_Languages_Translation_Test.pdf",
+    "Other Regional / Global Languages Test": "General_Translation_Test.pdf"
+}
 
-if selected_test_file:
-    test_binary = get_file_data(selected_test_file)
-    st.download_button(
-        label=f"📝 Download {test_option} Package",
-        data=test_binary if test_binary else b"",
-        file_name=selected_test_file,
-        mime="application/pdf",
-        disabled=(len(test_binary) == 0)
-    )
+if test_option in test_filename_map:
+    target_file = test_filename_map[test_option]
+    test_binary = get_file_data(target_file)
+    
+    if len(test_binary) > 0:
+        st.download_button(
+            label=f"📝 Download {test_option} Package",
+            data=test_binary,
+            file_name=target_file,
+            mime="application/pdf"
+        )
+    else:
+        st.warning(f"⚠️ Test file '{target_file}' was not found in the root GitHub folder. Please verify the exact filename on GitHub.")
 
-# --- SECTION 5: COMPLIANCE & RESUME UPLOADS ---
+
+# ==========================================================
+# --- SECTION 5: COMPLIANCE, RESUME & TEST UPLOADS ---
+# ==========================================================
 st.markdown("#### 📤 Section 5: Compliance Documentation & Resume Submission")
 
 file_resume = st.file_uploader("Upload Updated Resume / CV *", type=['pdf', 'doc', 'docx'])
@@ -195,7 +210,10 @@ file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
 file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
 file_test_completed = st.file_uploader("Upload Completed Translation Test File (if applicable)", type=['pdf', 'doc', 'docx', 'zip'])
 
-# --- SECTION 6 ---
+
+# ==========================================================
+# --- SECTION 6: ADDITIONAL CREDENTIALS ---
+# ==========================================================
 st.markdown("#### 🏅 Section 6: Additional Credentials & Certifications")
 file_cert = st.file_uploader("Upload Translation Certificate (if any)", type=['pdf', 'jpg', 'png'])
 file_edu = st.file_uploader("Upload Educational Qualification Certificates *", type=['pdf', 'jpg', 'png'])
@@ -203,8 +221,12 @@ file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=
 
 st.markdown("---")
 
+# AUTOMATICALLY EMBEDDED WEBHOOK ENDPOINT
 GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyYs4qak8MwQDXnB2Cwaynr-qALR7IeUKOeAgddeedO1naOPn60F5xEZOhFo7OZyoGwmg/exec"
 
+# ==========================================================
+# --- SUBMISSION LOGIC & VALIDATION ---
+# ==========================================================
 if st.button("Submit Profile Record", type="primary"):
     v_first_name = len(f_name.strip()) > 0
     v_last_name = len(l_name.strip()) > 0
