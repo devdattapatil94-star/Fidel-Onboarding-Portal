@@ -126,7 +126,7 @@ with col_alt1:
 with col_alt2:
     pay_proz = st.text_input("ProZ*Pay Link")
 
-# --- SECTION 4: DOWNLOAD DOCUMENTS & TEST FILES ---
+# --- SECTION 4: DOWNLOAD DOCUMENTS & DYNAMIC TEST SELECTION ---
 st.markdown("#### 📥 Section 4: Download Official Forms & Translation Test Packages")
 
 def get_file_data(filename):
@@ -141,8 +141,6 @@ def get_file_data(filename):
 nda_data = get_file_data("Fidel_NDA_Ver 1.3.pdf")
 po_data = get_file_data("Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf")
 consent_data = get_file_data("Fidel Consent Form.pdf")
-test_jp_data = get_file_data("Japanese_Translation_Test.pdf")
-test_in_data = get_file_data("Indian_Languages_Translation_Test.pdf")
 
 # Empanelment Documents
 st.markdown("##### 📋 Empanelment Templates")
@@ -154,18 +152,43 @@ with d_col2:
 with d_col3:
     st.download_button("📥 Consent Form", data=consent_data if consent_data else b"", file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
 
-# Translation Test Files
-st.markdown("##### 🧪 Translation Test Files (Indian & Japanese Linguists)")
-t_col1, t_col2 = st.columns(2)
-with t_col1:
-    st.download_button("📝 Download Japanese Test Package", data=test_jp_data if test_jp_data else b"", file_name="Japanese_Translation_Test.pdf", mime="application/pdf", disabled=(len(test_jp_data) == 0))
-with t_col2:
-    st.download_button("📝 Download Indian Languages Test Package", data=test_in_data if test_in_data else b"", file_name="Indian_Languages_Translation_Test.pdf", mime="application/pdf", disabled=(len(test_in_data) == 0))
+# DYNAMIC DROPDOWN TEST SELECTION
+st.markdown("##### 🧪 Select & Download Translation Test File")
+test_option = st.selectbox(
+    "Select Your Test Language Pair / Domain:",
+    [
+        "-- Select Language Test Pair --",
+        "English to Japanese Test",
+        "Japanese to English Test",
+        "Indian Languages Test (Hindi, Marathi, Tamil, etc.)",
+        "Other Regional / Global Languages Test"
+    ]
+)
+
+# File Mapping based on Selection
+selected_test_file = ""
+if test_option == "English to Japanese Test":
+    selected_test_file = "English_to_Japanese_Test.pdf"
+elif test_option == "Japanese to English Test":
+    selected_test_file = "Japanese_to_English_Test.pdf"
+elif test_option == "Indian Languages Test (Hindi, Marathi, Tamil, etc.)":
+    selected_test_file = "Indian_Languages_Translation_Test.pdf"
+elif test_option == "Other Regional / Global Languages Test":
+    selected_test_file = "General_Translation_Test.pdf"
+
+if selected_test_file:
+    test_binary = get_file_data(selected_test_file)
+    st.download_button(
+        label=f"📝 Download {test_option} Package",
+        data=test_binary if test_binary else b"",
+        file_name=selected_test_file,
+        mime="application/pdf",
+        disabled=(len(test_binary) == 0)
+    )
 
 # --- SECTION 5: COMPLIANCE & RESUME UPLOADS ---
 st.markdown("#### 📤 Section 5: Compliance Documentation & Resume Submission")
 
-# Added Resume / CV upload option
 file_resume = st.file_uploader("Upload Updated Resume / CV *", type=['pdf', 'doc', 'docx'])
 file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
 file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
@@ -233,6 +256,7 @@ if st.button("Submit Profile Record", type="primary"):
                                  f"**Email:** {v_email.strip()} | **Phone:** {v_phone}\n" \
                                  f"**Address:** {addr_street}, {addr_city}, {addr_state}, {addr_country}\n" \
                                  f"**Native Language:** {native.strip()} | **Pairs:** {lang_pairs.strip()}\n" \
+                                 f"**Selected Test:** {test_option}\n" \
                                  f"**Services:** {', '.join(selected_services)}\n" \
                                  f"**CAT Tools:** {', '.join(selected_cat_tools)}\n" \
                                  f"**RATES:** {rate_currency} | Per Word: {rate_per_word:.3f} | Per Hour: {rate_per_hour:.2f}\n\n" \
