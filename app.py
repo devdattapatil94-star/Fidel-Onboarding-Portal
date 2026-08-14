@@ -16,7 +16,6 @@ st.set_page_config(
 
 TARGET_EMAIL = "vendor-mgmt@fideltech.com"
 
-# Master list array containing your explicit language directory selections
 LANGUAGES_POOL = [
     "Afar", "Afrikaans (South Africa)", "Ahrani", "Akan", "Akha", "Albanian", "Amharic", 
     "Ancient Greek", "Arabic", "Arabic (Egypt)", "Arabic (Oman)", "Arabic (Algeria)", 
@@ -92,7 +91,6 @@ LANGUAGES_POOL = [
     "Yagwoia", "Yiddish (Israel)", "Yiddish (USA)", "Yoruba", "Zomi/Zou", "Zulu (South Africa)"
 ]
 
-# Helper function to read local template files securely
 def get_file_data(filename):
     if os.path.exists(filename):
         try:
@@ -103,7 +101,7 @@ def get_file_data(filename):
     return b""
 
 # ==========================================
-# 2. HEADER LAYOUT (LOGO & TITLE SIDE-BY-SIDE)
+# 2. HEADER LAYOUT
 # ==========================================
 logo_path = "FIDEL.NSE.png"
 col_logo, col_title = st.columns([0.6, 4.4], vertical_alignment="center")
@@ -154,7 +152,7 @@ with col_addr2:
     addr_city = st.text_input("City *")
     addr_country = st.text_input("Country *")
  
-st.markdown("#### 🎓 Section 2: Qualifications & Languages")
+st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 
@@ -162,9 +160,15 @@ selected_source_langs = st.multiselect("Source Language(s) *:", LANGUAGES_POOL)
 selected_target_langs = st.multiselect("Target Language(s) *:", LANGUAGES_POOL)
  
 cat_options = [
-    "MateCat", "MateSub", "MemoQ", "Phrase", "SDL Trados 2019", 
-    "SDL Trados 2021", "SDL Trados 2022", "Similis", "SmartCAT", 
-    "Smartling", "Wordfast"
+    "MateCat", 
+    "MemoQ", 
+    "Memsource", 
+    "Phrase", 
+    "SDL Trados 2019", 
+    "SDL Trados 2021", 
+    "SDL Trados 2022", 
+    "SmartCAT", 
+    "WordFast"
 ]
 selected_cat_tools = st.multiselect("Proficient in which of the following CAT Tools:", cat_options)
  
@@ -187,7 +191,16 @@ services_options = [
     "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
 ]
 selected_services = st.multiselect("Services you provide *:", services_options)
- 
+
+st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
+rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
+with rate_curr_col:
+    rate_currency = st.selectbox("Preferred Currency *", ["USD ($)", "JPY (¥)", "INR (₹)", "EUR (€)", "GBP (£)"])
+with rate_trans_col:
+    rate_per_word = st.number_input("Translation Rate (per word) *", min_value=0.000, step=0.001, format="%.3f")
+with rate_edit_col:
+    rate_per_hour = st.number_input("Editing/Review Rate (per hour) *", min_value=0.00, step=0.50, format="%.2f")
+
 st.markdown("#### 🏦 Section 3: Payment Details")
 col_fin1, col_fin2 = st.columns(2)
 with col_fin1:
@@ -205,7 +218,6 @@ col_tax1, col_tax2 = st.columns(2)
 with col_tax1:
     b_tax = st.text_input("PAN Card")
 with col_tax2:
-    # Updated text label with conditional visibility reference
     b_gst = st.text_input("GST Number (if applicable)")
  
 st.markdown("##### 💳 Alternative Global Payment Systems")
@@ -304,6 +316,7 @@ if st.button("Submit Onboarding Registration", type="primary"):
     v_source_lang = len(selected_source_langs) > 0
     v_target_lang = len(selected_target_langs) > 0
     v_services = len(selected_services) > 0
+    v_rates = (rate_per_word > 0.0) or (rate_per_hour > 0.0)
     
     v_track = test_track != "-- Choose Track --"
     v_test_file = file_test_attempt is not None
@@ -312,7 +325,7 @@ if st.button("Submit Onboarding Registration", type="primary"):
     v_section7 = (file_edu is not None) and (file_ref is not None)
 
     if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
-        v_country and v_native and v_source_lang and v_target_lang and v_services and 
+        v_country and v_native and v_source_lang and v_target_lang and v_services and v_rates and 
         v_track and v_test_file and v_compliance and v_section7):
         st.session_state.submitted = True
         st.rerun()
@@ -345,6 +358,9 @@ if st.session_state.submitted:
         "CAT Tools": [', '.join(selected_cat_tools) if selected_cat_tools else "None"],
         "Domain Expertise": [', '.join(selected_domains) if selected_domains else "None"],
         "Services Provided": [', '.join(selected_services)],
+        "Preferred Currency": [rate_currency],
+        "Translation Rate (Per Word)": [rate_per_word],
+        "Editing Rate (Per Hour)": [rate_per_hour],
         "Bank Name": [b_name.strip()],
         "Account Holder": [b_holder.strip()],
         "Bank Code": [b_code.strip()],
