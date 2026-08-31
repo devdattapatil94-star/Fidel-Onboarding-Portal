@@ -16,7 +16,7 @@ st.set_page_config(
 
 TARGET_EMAIL = "vendor-mgmt@fideltech.com"
 
-# Comprehensive language pool for dropdown multiselects
+# Comprehensive Master Data Pools
 LANGUAGES_POOL = [
     "Afrikaans", "Albanian", "Amharic", "Arabic", "Armenian", "Azerbaijani", 
     "Bengali", "Bulgarian", "Burmese", "Catalan", "Chinese (Simplified)", 
@@ -29,6 +29,30 @@ LANGUAGES_POOL = [
     "Punjabi", "Romanian", "Russian", "Serbian", "Sinhala", "Slovak", 
     "Slovenian", "Spanish", "Swahili", "Swedish", "Tagalog / Filipino", 
     "Tamil", "Telugu", "Thai", "Turkish", "Ukrainian", "Urdu", "Vietnamese"
+]
+
+CAT_OPTIONS = [
+    "MateCat", "MemoQ", "Memsource", "Phrase", 
+    "SDL Trados 2019", "SDL Trados 2021", "SDL Trados 2022", 
+    "SmartCAT", "WordFast"
+]
+
+DOMAIN_OPTIONS = [
+    "Banking", "Banking & Finance", "Dentistry", "E-learning", "Economics", 
+    "Education", "Electrical", "Electronics", "Electronics Appliances", 
+    "Employment Handbooks", "Finance", "General", "Health", "Health & Safety", 
+    "Help Documents", "Information Technology", "Insurance", 
+    "Law Patents, Trademarks, Copyrights", "Legal", "Logistics", 
+    "Manufacturing", "Marketing", "Medical", "Medical Diseases", 
+    "Patents", "Pharmaceuticals", "Retail", "Telecommunication", "Transport"
+]
+
+SERVICES_OPTIONS = [
+    "Back Translation (Chars)", "Back Translation (Words)", "Closed Captioning", 
+    "Data Annotation", "Data Collection", "Editing", 
+    "Machine Translation and Full Post-Editing", "Machine Translation and Light Post-Editing", 
+    "Post-Editing", "Proofreading", "Review", "Revision", 
+    "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
 ]
 
 def get_file_data(filename):
@@ -99,7 +123,7 @@ st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 
-# --- SOURCE & TARGET LANGUAGES (Dropdowns with Tickmark Selections) ---
+# --- SOURCE & TARGET LANGUAGES ---
 selected_source_langs = st.multiselect(
     "Source Language(s) * (Click to open dropdown & select with tickmarks):", 
     LANGUAGES_POOL,
@@ -113,44 +137,23 @@ selected_target_langs = st.multiselect(
 )
 
 # --- CAT TOOLS ---
-cat_options = [
-    "MateCat", "MemoQ", "Memsource", "Phrase", 
-    "SDL Trados 2019", "SDL Trados 2021", "SDL Trados 2022", 
-    "SmartCAT", "WordFast"
-]
 selected_cat_tools = st.multiselect(
     "Proficient in which of the following CAT Tools:", 
-    cat_options,
+    CAT_OPTIONS,
     placeholder="Select CAT tools..."
 )
 
 # --- DOMAIN EXPERTISE ---
-domain_options = [
-    "Banking", "Banking & Finance", "Dentistry", "E-learning", "Economics", 
-    "Education", "Electrical", "Electronics", "Electronics Appliances", 
-    "Employment Handbooks", "Finance", "General", "Health", "Health & Safety", 
-    "Help Documents", "Information Technology", "Insurance", 
-    "Law Patents, Trademarks, Copyrights", "Legal", "Logistics", 
-    "Manufacturing", "Marketing", "Medical", "Medical Diseases", 
-    "Patents", "Pharmaceuticals", "Retail", "Telecommunication", "Transport"
-]
 selected_domains = st.multiselect(
     "Domain Expertise:", 
-    domain_options,
+    DOMAIN_OPTIONS,
     placeholder="Select domain expertise..."
 )
 
 # --- SERVICES PROVIDED ---
-services_options = [
-    "Back Translation (Chars)", "Back Translation (Words)", "Closed Captioning", 
-    "Data Annotation", "Data Collection", "Editing", 
-    "Machine Translation and Full Post-Editing", "Machine Translation and Light Post-Editing", 
-    "Post-Editing", "Proofreading", "Review", "Revision", 
-    "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
-]
 selected_services = st.multiselect(
     "Services you provide *:", 
-    services_options,
+    SERVICES_OPTIONS,
     placeholder="Select services..."
 )
 
