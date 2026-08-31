@@ -1,55 +1,22 @@
-import io
 import os
-import smtplib
+import io
 import zipfile
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 import pandas as pd
+from datetime import datetime
 import streamlit as st
 
-# ========================================================
-# --- PAGE CONFIGURATION & STYLING ---
-# ========================================================
+# ==========================================
+# 1. PAGE CONFIGURATION & INTAKE SETTINGS
+# ==========================================
 st.set_page_config(
-    page_title="Fidel Resource Onboarding Portal",
+    page_title="Fidel Softech Resource Onboarding", 
     page_icon="🌐",
-    layout="wide"
+    layout="centered"
 )
 
-# Fidel Corporate Styling
-st.markdown("""
-    <style>
-    .main-header {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #003366;
-        margin-bottom: 0.2rem;
-    }
-    .sub-header {
-        font-size: 1rem;
-        color: #555555;
-        margin-bottom: 1.5rem;
-    }
-    .stButton>button {
-        width: 100%;
-        background-color: #003366;
-        color: white;
-        font-weight: 600;
-        padding: 0.7rem 1rem;
-        border-radius: 6px;
-        border: none;
-    }
-    .stButton>button:hover {
-        background-color: #002244;
-        color: white;
-    }
-    </style>
-""", unsafe_allow_html=True)
+TARGET_EMAIL = "vendor-mgmt@fideltech.com"
 
-# ========================================================
-# --- MASTER DATA POOLS ---
-# ========================================================
+# Comprehensive language pool for dropdown multiselects
 LANGUAGES_POOL = [
     "Afrikaans", "Albanian", "Amharic", "Arabic", "Armenian", "Azerbaijani", 
     "Bengali", "Bulgarian", "Burmese", "Catalan", "Chinese (Simplified)", 
@@ -64,13 +31,101 @@ LANGUAGES_POOL = [
     "Tamil", "Telugu", "Thai", "Turkish", "Ukrainian", "Urdu", "Vietnamese"
 ]
 
-CAT_OPTIONS = [
+def get_file_data(filename):
+    if os.path.exists(filename):
+        try:
+            with open(filename, "rb") as f: 
+                return f.read()
+        except: 
+            return b""
+    return b""
+
+# ==========================================
+# 2. HEADER LAYOUT
+# ==========================================
+logo_path = "FIDEL.NSE.png"
+col_logo, col_title = st.columns([0.6, 4.4], vertical_alignment="center")
+with col_logo:
+    if os.path.exists(logo_path):
+        st.image(logo_path, width=85)
+    else:
+        st.warning("⚠️ Place FIDEL.NSE.png in your repo")
+with col_title:
+    st.markdown("<h1 style='margin: 0; padding: 0; font-size: 2.25rem; white-space: nowrap;'>Fidel Softech Resource Onboarding</h1>", unsafe_allow_html=True)
+
+st.markdown("Please complete the official empanelment profile form below, complete the translation test task, and upload your paperwork.")
+st.markdown("---")
+
+st.subheader("📄 Resource Empanelment Profile")
+
+# ==========================================
+# 3. FORM SECTIONS
+# ==========================================
+st.markdown("#### 👤 Section 1: Personal Information")
+col1, col2 = st.columns(2)
+with col1:
+    f_name = st.text_input("First Name *", placeholder="Enter your first name")
+    v_email = st.text_input("Email ID *", placeholder="example@email.com")
+with col2:
+    l_name = st.text_input("Last Name *", placeholder="Enter your last name")
+    
+    st.markdown("<label style='font-size: 14px;'>Contact Number *</label>", unsafe_allow_html=True)
+    c_code_col, phone_num_col = st.columns([1, 2])
+    with c_code_col:
+        all_country_codes = ["+91 (India)", "+1 (USA/Canada)", "+44 (UK)", "+81 (Japan)", "+49 (Germany)", "+33 (France)", "+61 (Australia)"]
+        selected_code = st.selectbox("Code", all_country_codes, label_visibility="collapsed")
+    with phone_num_col:
+        v_phone_local = st.text_input("Phone Number", placeholder="XXXXX-XXXXX", label_visibility="collapsed")
+    
+    v_phone = f"{selected_code.split(' ')[0]} {v_phone_local.strip()}" if v_phone_local.strip() else ""
+
+avail = st.selectbox("Availability Status", ["Full-time", "Part-time"])
+
+st.markdown("##### 🏠 Address Information")
+col_addr1, col_addr2 = st.columns(2)
+with col_addr1:
+    addr_street = st.text_input("Street")
+    addr_zip = st.text_input("Zip Code")
+    addr_state = st.text_input("State")
+with col_addr2:
+    addr_street2 = st.text_input("Street 2")
+    addr_city = st.text_input("City *")
+    addr_country = st.text_input("Country *")
+
+# ========================================================
+# --- SECTION 2: QUALIFICATIONS, LANGUAGES & RATES ---
+# ========================================================
+st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
+native = st.text_input("Native Language *", placeholder="e.g., Japanese")
+exp = st.slider("Years of Translation Experience", 0, 40, 2)
+
+# --- SOURCE & TARGET LANGUAGES (Dropdowns with Tickmark Selections) ---
+selected_source_langs = st.multiselect(
+    "Source Language(s) * (Click to open dropdown & select with tickmarks):", 
+    LANGUAGES_POOL,
+    placeholder="Choose source language(s)..."
+)
+
+selected_target_langs = st.multiselect(
+    "Target Language(s) * (Click to open dropdown & select with tickmarks):", 
+    LANGUAGES_POOL,
+    placeholder="Choose target language(s)..."
+)
+
+# --- CAT TOOLS ---
+cat_options = [
     "MateCat", "MemoQ", "Memsource", "Phrase", 
     "SDL Trados 2019", "SDL Trados 2021", "SDL Trados 2022", 
     "SmartCAT", "WordFast"
 ]
+selected_cat_tools = st.multiselect(
+    "Proficient in which of the following CAT Tools:", 
+    cat_options,
+    placeholder="Select CAT tools..."
+)
 
-DOMAIN_OPTIONS = [
+# --- DOMAIN EXPERTISE ---
+domain_options = [
     "Banking", "Banking & Finance", "Dentistry", "E-learning", "Economics", 
     "Education", "Electrical", "Electronics", "Electronics Appliances", 
     "Employment Handbooks", "Finance", "General", "Health", "Health & Safety", 
@@ -79,270 +134,275 @@ DOMAIN_OPTIONS = [
     "Manufacturing", "Marketing", "Medical", "Medical Diseases", 
     "Patents", "Pharmaceuticals", "Retail", "Telecommunication", "Transport"
 ]
+selected_domains = st.multiselect(
+    "Domain Expertise:", 
+    domain_options,
+    placeholder="Select domain expertise..."
+)
 
-SERVICES_OPTIONS = [
+# --- SERVICES PROVIDED ---
+services_options = [
     "Back Translation (Chars)", "Back Translation (Words)", "Closed Captioning", 
     "Data Annotation", "Data Collection", "Editing", 
     "Machine Translation and Full Post-Editing", "Machine Translation and Light Post-Editing", 
     "Post-Editing", "Proofreading", "Review", "Revision", 
     "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
 ]
+selected_services = st.multiselect(
+    "Services you provide *:", 
+    services_options,
+    placeholder="Select services..."
+)
 
-# ========================================================
-# --- HELPER FUNCTIONS (ZIP & EMAIL) ---
-# ========================================================
-def create_vendor_zip(vendor_data, uploaded_files):
-    """Generates an Excel matrix and packages it with uploaded documents into a ZIP in memory."""
-    zip_buffer = io.BytesIO()
+# --- MANDATORY SERVICE RATES & PRICING ---
+st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
+rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
+with rate_curr_col:
+    rate_currency = st.selectbox("Preferred Currency *", ["USD ($)", "JPY (¥)", "INR (₹)", "EUR (€)", "GBP (£)"])
+with rate_trans_col:
+    rate_per_word = st.number_input("Translation Rate (per word) *", min_value=0.000, step=0.001, format="%.3f")
+with rate_edit_col:
+    rate_per_hour = st.number_input("Editing/Review Rate (per hour) *", min_value=0.00, step=0.50, format="%.2f")
+
+# ==========================================
+# SECTION 3: PAYMENT DETAILS
+# ==========================================
+st.markdown("#### 🏦 Section 3: Payment Details")
+col_fin1, col_fin2 = st.columns(2)
+with col_fin1:
+    b_name = st.text_input("Bank Name")
+    b_holder = st.text_input("Account Holder Name")
+    b_code = st.text_input("Bank Code")
+    b_acc = st.text_input("Account Number")
+with col_fin2:
+    b_ifsc = st.text_input("IFSC Code")
+    b_swift = st.text_input("Swift Code")
+    b_address = st.text_area("Bank Address", height=68)
+    b_country = st.text_input("Bank Country")
+
+col_tax1, col_tax2 = st.columns(2)
+with col_tax1:
+    b_tax = st.text_input("PAN Card")
+with col_tax2:
+    b_gst = st.text_input("GST Number (if applicable)")
+
+st.markdown("##### 💳 Alternative Global Payment Systems")
+col_alt1, col_alt2 = st.columns(2)
+with col_alt1:
+    pay_paypal = st.text_input("PayPal ID")
+    pay_payoneer = st.text_input("Payoneer Code / ID")
+with col_alt2:
+    pay_proz = st.text_input("ProZ*Pay Link")
+
+# ==========================================
+# SECTION 4: DOWNLOAD TEMPLATES
+# ==========================================
+st.markdown("#### 📥 Section 4: Download Standard Templates")
+nda_data = get_file_data("Fidel_NDA_Ver 1.3.pdf")
+po_data = get_file_data("Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf")
+consent_data = get_file_data("Fidel Consent Form.pdf")
+
+d_col1, d_col2, d_col3 = st.columns(3)
+with d_col1:
+    st.download_button("📥 Download NDA Template", data=nda_data, file_name="Fidel_NDA_Ver 1.3.pdf", mime="application/pdf", disabled=(len(nda_data) == 0))
+with d_col2:
+    st.download_button("📥 Download PO Terms", data=po_data, file_name="Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf", mime="application/pdf", disabled=(len(po_data) == 0))
+with d_col3:
+    st.download_button("📥 Download Consent Form", data=consent_data, file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
+
+# ==========================================
+# SECTION 5: TRANSLATION EVALUATION TEST
+# ==========================================
+st.markdown("#### 📝 Section 5: Mandatory Translation Evaluation Test")
+st.write("Select your translation track below, download the respective assignment file, and upload your completed translation.")
+
+test_track = st.selectbox("Select Translation Test Track *", [
+    "-- Choose Track --", 
+    "English to Indian Languages", 
+    "English to Japanese", 
+    "Japanese to English"
+])
+
+test_file_data = b""
+target_filename = ""
+
+if test_track == "English to Indian Languages":
+    target_filename = "Test_English_to_Indian.docx"
+elif test_track == "English to Japanese":
+    target_filename = "Test_English_to_Japanese.docx"
+elif test_track == "Japanese to English":
+    target_filename = "Test_Japanese_to_English.docx"
+
+if target_filename:
+    test_file_data = get_file_data(target_filename)
+    if len(test_file_data) > 0:
+        st.download_button(
+            label=f"📥 Download {test_track} Test File",
+            data=test_file_data,
+            file_name=target_filename,
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            type="secondary"
+        )
+    else:
+        st.warning(f"⚠️ {target_filename} not found in the repository root path.")
+
+file_test_attempt = st.file_uploader("Upload Your Completed Translation Test File *", type=['txt', 'doc', 'docx', 'pdf'])
+
+# ==========================================
+# SECTION 6: COMPLIANCE DOCUMENTATION
+# ==========================================
+st.markdown("#### 📤 Section 6: Compliance Documentation Submission")
+file_cv = st.file_uploader("Upload Latest CV / Resume *", type=['pdf', 'doc', 'docx'])
+file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
+file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
+file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
+
+# ==========================================
+# SECTION 7: ADDITIONAL CREDENTIALS
+# ==========================================
+st.markdown("#### 🏅 Section 7: Additional Credentials & Certifications")
+file_cert = st.file_uploader("Upload Translation Certificate (if any)", type=['pdf', 'jpg', 'png'])
+file_edu = st.file_uploader("Upload Educational Qualification Certificates *", type=['pdf', 'jpg', 'png'])
+file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=['pdf', 'doc', 'docx'])
+
+st.markdown("---")
+
+# ==========================================
+# 4. SUBMISSION VALIDATION ENGINE
+# ==========================================
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
+
+if st.button("Submit Onboarding Registration", type="primary"):
+    v_first_name = bool(f_name and f_name.strip())
+    v_last_name = bool(l_name and l_name.strip())
+    v_email_id = bool(v_email and v_email.strip())
+    v_contact = bool(v_phone_local and v_phone_local.strip())
+    v_city = bool(addr_city and addr_city.strip())
+    v_country = bool(addr_country and addr_country.strip())
+    v_native = bool(native and native.strip())
     
+    v_source_lang = len(selected_source_langs) > 0
+    v_target_lang = len(selected_target_langs) > 0
+    v_services = len(selected_services) > 0
+    v_rates = (rate_per_word > 0.0) or (rate_per_hour > 0.0)
+    
+    v_track = test_track != "-- Choose Track --"
+    v_test_file = file_test_attempt is not None
+    
+    v_compliance = (file_cv is not None) and (file_nda is not None) and (file_po is not None) and (file_consent is not None)
+    v_section7 = (file_edu is not None) and (file_ref is not None)
+
+    if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
+        v_country and v_native and v_source_lang and v_target_lang and v_services and v_rates and 
+        v_track and v_test_file and v_compliance and v_section7):
+        st.session_state.submitted = True
+        st.rerun()
+    else:
+        st.error("❌ Submission Failed. Please check that all mandatory checkboxes and fields (*) are filled.")
+
+# ==========================================
+# 5. ZIP PACKAGE COMPOSITION (.XLSX + FILES)
+# ==========================================
+if st.session_state.submitted:
+    full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
+    clean_name = full_vendor_name.replace(' ', '_')
+    
+    vendor_data = {
+        "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
+        "First Name": [f_name.strip()],
+        "Last Name": [l_name.strip()],
+        "Email ID": [v_email.strip()],
+        "Contact Number": [v_phone],
+        "Availability Status": [avail],
+        "Street Address": [f"{addr_street} {addr_street2}".strip()],
+        "City": [addr_city.strip()],
+        "State": [addr_state.strip()],
+        "Zip Code": [addr_zip.strip()],
+        "Country": [addr_country.strip()],
+        "Native Language": [native.strip()],
+        "Experience (Years)": [exp],
+        "Source Language Selection": [', '.join(selected_source_langs)],
+        "Target Language Selection": [', '.join(selected_target_langs)],
+        "CAT Tools": [', '.join(selected_cat_tools) if selected_cat_tools else "None"],
+        "Domain Expertise": [', '.join(selected_domains) if selected_domains else "None"],
+        "Services Provided": [', '.join(selected_services)],
+        "Preferred Currency": [rate_currency],
+        "Translation Rate (Per Word)": [rate_per_word],
+        "Editing Rate (Per Hour)": [rate_per_hour],
+        "Bank Name": [b_name.strip()],
+        "Account Holder": [b_holder.strip()],
+        "Bank Code": [b_code.strip()],
+        "Account Number": [b_acc.strip()],
+        "IFSC Code": [b_ifsc.strip()],
+        "Swift Code": [b_swift.strip()],
+        "PAN Card": [b_tax.strip()],
+        "GST Number": [b_gst.strip()],
+        "PayPal ID": [pay_paypal.strip()],
+        "Payoneer ID": [pay_payoneer.strip()],
+        "ProZ Link": [pay_proz.strip()],
+        "Translation Test Track": [test_track],
+        "Test File Name": [file_test_attempt.name]
+    }
+    
+    df_individual = pd.DataFrame(vendor_data)
+    
+    excel_buffer = io.BytesIO()
+    with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+        df_individual.to_excel(writer, index=False, sheet_name="Vendor Onboarding Matrix")
+    excel_data = excel_buffer.getvalue()
+    
+    zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        # 1. Excel Generation
-        df = pd.DataFrame([vendor_data])
-        excel_buffer = io.BytesIO()
-        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='Vendor Profile')
-        zip_file.writestr("Vendor_Profile.xlsx", excel_buffer.getvalue())
+        zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_data)
         
-        # 2. Attach Files
-        for file_name, file_obj in uploaded_files.items():
+        uploaded_files = [
+            (file_cv, "CV_Resume"),
+            (file_nda, "Signed_NDA"), 
+            (file_po, "Signed_PO"), 
+            (file_consent, "Signed_Data_Consent"),
+            (file_test_attempt, "Completed_Translation_Test"),
+            (file_edu, "Educational_Certificates"), 
+            (file_ref, "Reference_Letter"), 
+            (file_cert, "Translation_Certificate")
+        ]
+        
+        for file_obj, filename_prefix in uploaded_files:
             if file_obj is not None:
-                zip_file.writestr(f"Documents/{file_name}_{file_obj.name}", file_obj.getvalue())
+                ext = os.path.splitext(file_obj.name)[1]
+                zip_file.writestr(f"{filename_prefix}{ext}", file_obj.getvalue())
                 
     zip_buffer.seek(0)
-    return zip_buffer.getvalue()
-
-
-def send_dispatch_email(zip_data, vendor_name, vendor_email):
-    """Dispatches the vendor package to vendor-mgmt@fideltech.com."""
-    # Secrets management via Streamlit Cloud secrets or environment variables
-    smtp_server = st.secrets.get("SMTP_SERVER", "smtp.gmail.com")
-    smtp_port = int(st.secrets.get("SMTP_PORT", 587))
-    sender_email = st.secrets.get("SENDER_EMAIL", "")
-    sender_password = st.secrets.get("SENDER_PASSWORD", "")
-    recipient_email = "vendor-mgmt@fideltech.com"
-
-    if not sender_email or not sender_password:
-        return False, "SMTP Credentials missing in Streamlit secrets."
-
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
-    msg['Subject'] = f"New Vendor Onboarding Submission: {vendor_name}"
-
-    body = f"""
-    Dear Vendor Management Team,
-
-    A new vendor application has been submitted via the Fidel Onboarding Portal.
-
-    Vendor Details:
-    - Name: {vendor_name}
-    - Contact Email: {vendor_email}
-
-    The complete registration profile and uploaded compliance files are attached in the ZIP archive.
-
-    Regards,
-    Fidel Resource Onboarding Portal
-    """
-    msg.attach(MIMEText(body, 'plain'))
-
-    # Attach ZIP File
-    zip_filename = f"{vendor_name.replace(' ', '_')}_Onboarding_Package.zip"
-    part = MIMEApplication(zip_data, Name=zip_filename)
-    part['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
-    msg.attach(part)
-
-    try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, recipient_email, msg.as_string())
-        server.quit()
-        return True, "Success"
-    except Exception as e:
-        return False, str(e)
-
-
-# ========================================================
-# --- MAIN APPLICATION UI ---
-# ========================================================
-st.markdown("<div class='main-header'>Fidel Softech — Linguist Onboarding Portal</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-header'>Digital Empanelment Hub for Translators, Reviewers & Localization Partners</div>", unsafe_allow_html=True)
-
-with st.form("fidel_onboarding_form", clear_on_submit=False):
     
-    # ----------------------------------------------------
-    # SECTION 1: PERSONAL & CONTACT INFORMATION
-    # ----------------------------------------------------
-    st.markdown("#### 👤 Section 1: Personal & Contact Information")
-    col_fn, col_ln = st.columns(2)
-    with col_fn:
-        first_name = st.text_input("First Name *", placeholder="First Name")
-    with col_ln:
-        last_name = st.text_input("Last Name *", placeholder="Last Name")
+    st.info("ℹ️ Your registration data files have been verified and bundled successfully.")
+    st.markdown("---")
+    st.markdown("### 📧 Final Step: Dispatch Packages to Vendor Management")
+    st.write("Follow these two quick steps to send your documentation straight to our team:")
+    
+    act_col1, act_col2 = st.columns(2)
+    
+    with act_col1:
+        st.markdown("**Step 1:** Download the complete package.")
+        st.download_button(
+            label="📥 Download Onboarding Package (.zip)",
+            data=zip_buffer.getvalue(),
+            file_name=f"{clean_name}_Onboarding_Package.zip",
+            mime="application/zip",
+            type="primary",
+            use_container_width=True
+        )
         
-    col_email, col_phone, col_country = st.columns(3)
-    with col_email:
-        email = st.text_input("Email Address *", placeholder="name@domain.com")
-    with col_phone:
-        phone = st.text_input("Phone Number *", placeholder="+91 98765 43210")
-    with col_country:
-        country = st.text_input("Country of Residence *", placeholder="India")
-
-    st.divider()
-
-    # ----------------------------------------------------
-    # SECTION 2: QUALIFICATIONS, LANGUAGES & RATES
-    # ----------------------------------------------------
-    st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
-    
-    col_nat, col_exp = st.columns([1, 1])
-    with col_nat:
-        native = st.text_input("Native Language *", placeholder="e.g., Japanese")
-    with col_exp:
-        exp = st.slider("Years of Translation Experience", 0, 40, 2)
-
-    # --- SOURCE & TARGET LANGUAGES ---
-    selected_source_langs = st.multiselect(
-        "Source Language(s) * (Click to open dropdown & select with tickmarks):", 
-        LANGUAGES_POOL,
-        placeholder="Choose source language(s)..."
-    )
-
-    selected_target_langs = st.multiselect(
-        "Target Language(s) * (Click to open dropdown & select with tickmarks):", 
-        LANGUAGES_POOL,
-        placeholder="Choose target language(s)..."
-    )
-     
-    # --- CAT TOOLS ---
-    selected_cat_tools = st.multiselect(
-        "Proficient in which of the following CAT Tools:", 
-        CAT_OPTIONS,
-        placeholder="Select CAT tools..."
-    )
-     
-    # --- DOMAIN EXPERTISE ---
-    selected_domains = st.multiselect(
-        "Domain Expertise:", 
-        DOMAIN_OPTIONS,
-        placeholder="Select domain expertise..."
-    )
-     
-    # --- SERVICES PROVIDED ---
-    selected_services = st.multiselect(
-        "Services you provide *:", 
-        SERVICES_OPTIONS,
-        placeholder="Select services..."
-    )
-
-    # --- MANDATORY SERVICE RATES & PRICING ---
-    st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
-    rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
-    with rate_curr_col:
-        rate_currency = st.selectbox("Preferred Currency *", ["USD ($)", "JPY (¥)", "INR (₹)", "EUR (€)", "GBP (£)"])
-    with rate_trans_col:
-        rate_per_word = st.number_input("Translation Rate (per word) *", min_value=0.000, step=0.001, format="%.3f")
-    with rate_edit_col:
-        rate_per_hour = st.number_input("Editing/Review Rate (per hour) *", min_value=0.00, step=0.50, format="%.2f")
-
-    st.divider()
-
-    # ----------------------------------------------------
-    # SECTION 3: COMPLIANCE & DOCUMENT UPLOADS
-    # ----------------------------------------------------
-    st.markdown("#### 📄 Section 3: Compliance & Document Uploads")
-    
-    col_cv, col_cert = st.columns(2)
-    with col_cv:
-        cv_file = st.file_uploader("Upload Updated CV/Resume (PDF/DOCX) *", type=["pdf", "docx"])
-    with col_cert:
-        cert_file = st.file_uploader("Certifications / Diplomas (Optional)", type=["pdf", "docx", "zip"])
-
-    nda_agreed = st.checkbox("I agree to Fidel Softech's Non-Disclosure Agreement (NDA) & Privacy Policy. *")
-
-    st.divider()
-
-    # Submit Button
-    submitted = st.form_submit_button("Submit Registration to Fidel VM Team")
-
-# ========================================================
-# --- PROCESSING & SUBMISSION HANDLER ---
-# ========================================================
-if submitted:
-    # 1. Validation Logic
-    errors = []
-    if not first_name.strip() or not last_name.strip():
-        errors.append("Please provide both First and Last Name.")
-    if not email.strip() or "@" not in email:
-        errors.append("A valid Email Address is required.")
-    if not native.strip():
-        errors.append("Native Language is required.")
-    if not selected_source_langs:
-        errors.append("Select at least one Source Language.")
-    if not selected_target_langs:
-        errors.append("Select at least one Target Language.")
-    if not selected_services:
-        errors.append("Select at least one Service.")
-    if rate_per_word <= 0 and rate_per_hour <= 0:
-        errors.append("Please specify at least one valid service rate.")
-    if not cv_file:
-        errors.append("Resume/CV upload is mandatory.")
-    if not nda_agreed:
-        errors.append("You must agree to the NDA & Terms to proceed.")
-
-    # 2. Execution Block
-    if errors:
-        for err in errors:
-            st.error(f"⚠️ {err}")
-    else:
-        with st.spinner("Processing application and packaging files..."):
-            # Compile Form Payload
-            vendor_matrix = {
-                "First Name": first_name,
-                "Last Name": last_name,
-                "Email": email,
-                "Phone": phone,
-                "Country": country,
-                "Native Language": native,
-                "Years of Experience": exp,
-                "Source Languages": ", ".join(selected_source_langs),
-                "Target Languages": ", ".join(selected_target_langs),
-                "CAT Tools": ", ".join(selected_cat_tools),
-                "Domains": ", ".join(selected_domains),
-                "Services": ", ".join(selected_services),
-                "Currency": rate_currency,
-                "Translation Rate (Word)": rate_per_word,
-                "Editing Rate (Hour)": rate_per_hour,
-                "NDA Agreed": nda_agreed
-            }
-
-            uploaded_docs = {
-                "Resume": cv_file,
-                "Certifications": cert_file
-            }
-
-            # Generate ZIP package
-            zip_bytes = create_vendor_zip(vendor_matrix, uploaded_docs)
-
-            # Try to route email directly
-            email_sent, email_msg = send_dispatch_email(zip_bytes, f"{first_name} {last_name}", email)
-
-            st.balloons()
-            st.success("🎉 Application Submitted Successfully!")
-            
-            if email_sent:
-                st.info("✉️ Your profile & documents have been routed directly to `vendor-mgmt@fideltech.com`.")
-            else:
-                st.warning("⚠️ Direct email dispatch skipped (SMTP config pending). You can download your packaged application ZIP below to submit manually.")
-                
-            # Direct ZIP Download Option
-            st.download_button(
-                label="📥 Download Onboarding Package (.ZIP)",
-                data=zip_bytes,
-                file_name=f"{first_name}_{last_name}_Fidel_Onboarding.zip",
-                mime="application/zip"
-            )
-
-            # Profile Summary Preview
-            with st.expander("🔍 View Processed Registration Matrix", expanded=False):
-                st.json(vendor_matrix)
+    with act_col2:
+        st.markdown("**Step 2:** Open email client dashboard.")
+        email_subject = f"Onboarding Registration Submission - {full_vendor_name}"
+        email_body = f"Hello VM Team,\n\nPlease find attached my unified resource onboarding folder package containing my registration details Excel sheet and signed compliance documentation.\n\nBest Regards,\n{full_vendor_name}"
+        mailto_link = f"mailto:{TARGET_EMAIL}?subject={email_subject.replace(' ', '%20')}&body={email_body.replace(' ', '%20').replace('\n', '%0A')}"
+        
+        st.markdown(
+            f'<a href="{mailto_link}" target="_blank" style="text-decoration:none;">'
+            f'<button style="background-color:#4CAF50; color:white; border:none; padding:10px 20px; font-size:16px; '
+            f'border-radius:4px; cursor:pointer; width:100%; height:45px; margin-top:2px;">📨 Open Corporate Mail Client</button></a>', 
+            unsafe_allow_html=True
+        )
+        
+    st.info("💡 **Tip:** After you click Step 1 to download the file, hit Step 2. Your email app will instantly open up pre-addressed, and you can just drag the zip file from your download bar directly into that message window!")
