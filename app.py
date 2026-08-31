@@ -16,79 +16,28 @@ st.set_page_config(
 
 TARGET_EMAIL = "vendor-mgmt@fideltech.com"
 
-LANGUAGES_POOL = [
-    "Afar", "Afrikaans (South Africa)", "Ahrani", "Akan", "Akha", "Albanian", "Amharic", 
-    "Ancient Greek", "Arabic", "Arabic (Egypt)", "Arabic (Oman)", "Arabic (Algeria)", 
-    "Arabic (Bahrain)", "Arabic (Chad)", "Arabic (Iraq)", "Arabic (Jordan)", "Arabic (Kuwait)", 
-    "Arabic (Lebanon)", "Arabic (Libya)", "Arabic (Mauritania)", "Arabic (Morocco)", 
-    "Arabic (Palestinian Territory)", "Arabic (Qatar)", "Arabic (Saudi Arabia)", "Arabic (Sudan)", 
-    "Arabic (Syria)", "Arabic (Tunisia)", "Arabic (United Arab Emirates)", "Arabic (Western Sahara)", 
-    "Arabic (Yemen)", "Armenian", "Assamese", "Asturian (Spain)", "Ateso", "Avar", "Awadhi", 
-    "Aymara", "Azerbaijani", "Azeri (Cyrillic)", "Azeri Latin", "Bagheli", "Bambara", "Bashkir", 
-    "Basque", "Bassa (BSQ)", "Bemba", "Bengali", "Bengali (Bangladesh)", "Berber (Tamazight)", 
-    "Bhili (India)", "Bhojpuri", "Bhutani", "Bihari", "Bikol", "Bislama", "Bodo", "Bosnian (Cyrillic)", 
-    "Bosnian (Latin)", "Breton", "Bulgarian", "Buli", "Bundeli", "Burmese", "Burushaski", 
-    "Burushaski (Pakistan)", "Byelorussian", "Cantonese", "Carolinian", "Catalan", "Catalan (Spain)", 
-    "Cebuano (Philippines)", "Cham", "Chamorro", "Chhattisgarhi (India)", "Chichewa", "Chin (Falam)", 
-    "Chinese (Mandarin)", "Chinese (Simplified)", "Chinese (Singapore)", "Chinese (Traditional)", 
-    "Chinese, Hong Kong", "Chittagonian (CTG)", "Chuukese", "Corsican", "Croatian", "Czech", 
-    "Dandami Maria (India)", "Danish", "Dari", "Dhivehi-Maldivian (Maldives)", "Dholuo", "Dhundari", 
-    "Dinka", "Dioula", "Divehi", "Dogon", "Dogri", "Dothraki", "Dutch", "Dutch (Belgium)", 
-    "Dzongkha (DZ)", "Eastern Armenian", "Eastern Tamang", "Edo(Bini)", "Efik (Africa)", 
-    "English (Australia)", "English (Canada)", "English (Hong Kong)", "English (India)", 
-    "English (Nigeria)", "English (Philippines)", "English (Singapore)", "English (South Africa)", 
-    "English (Switzerland)", "English (UK)", "English (USA)", "English (United Arab Emirates)", 
-    "English(Malaysia)", "English (Asia)", "English (Austria)", "English (Cyprus)", "English (Germany)", 
-    "English (Holland)", "English (Ireland)", "English (Neutral)", "English (New Zealand)", 
-    "Esperanto", "Estonian", "Ewe (Ghana)", "Fante (Fanti) (FAT)", "Faroese (Faroe Islands)", 
-    "Farsi", "Fijian", "Filipino", "Finnish", "Flemish", "French", "French (Belgium)", 
-    "French (Cameroon) (FR CM)", "French (Canada)", "French (France)", "French (Haiti) (FR-Haiti)", 
-    "French (Luxembourg)", "French (Morocco)", "French (Switzerland)", "Frisian", "Fula", 
-    "Galician (Spain)", "Garhwali", "Garo", "Georgian", "German (Austria)", "German (Belgium)", 
-    "German (Germany)", "German (Holland)", "German (Luxembourg)", "German (Switzerland)", 
-    "Gondi", "Greek", "Greenlandic", "Guarani", "Gujarati (India)", "Haitian Creole", "Hakha Chin", 
-    "Haryanvi (BGC)", "Hausa", "Hawaiian", "Hebrew", "Herero (Namibia)", "Hijazi Arabic", 
-    "Hiligaynon", "Hindi", "Hindi Latin", "Hmong", "Hmong (USA)", "Hokkien (Fukienese)", 
-    "Hungarian", "Icelandic", "Igbo", "Ilocano", "India", "Indonesian", "Interlingua", 
-    "Interlingue", "Inuktitut", "Inupiak", "Irish (Ireland)", "Italian", "Italian (Switzerland)", 
-    "Iu Mien", "Jamaican English Creole", "Japanese", "Javanese", "Juba Arabic", "Kabiye", 
-    "Kachin", "Kam Mueang (Lanna) (NOD)", "Kangri", "Kannada (India)", "Kanuri", "Kaonde", 
-    "Karen", "Karenni (Kayah)(eastern)", "Karenni (Kayah)(western)", "Kasem", "Kashmiri", 
-    "Kazakh", "Khashi", "Khasi", "Khmer", "Khmu (KJG)", "Khowar", "Kikongo (Congo)", "Kikuyu", 
-    "Kinyarwanda", "Kirghiz", "Kiribati", "Kirundi (Rundi) (RN)", "Kiswahili (Africa)", 
-    "Klingon", "Konkani (India)", "Korean", "Kosraean", "Kru", "Kuanyama", "Kurdish (Turkey)", 
-    "Kurdish (Iraq)", "Kurdish (Kurmanji)", "Kurdish (Sorani)", "Lambadi", "Lao", "Laothian", 
-    "Latin", "Latvian", "Lingala", "Lithuanian", "Lozi", "Luganda", "Lunda", "Luxembourgish", 
-    "Maasai (MAS)", "Maay", "Macedonian", "Macedonian (MK)", "Maithili", "Malagasy (Madagascar)", 
-    "Malay (Malysia)", "Malay Chinese", "Malayalam (India)", "Malinke", "Maltese", "Manipuri", 
-    "Maori", "Marathi", "Maria-Dandami", "Marshallese", "Marwari", "Masalit", "Meru (Kimeru) (MER)", 
-    "Mewari", "Mien (Iu Mien) (IUM)", "Mirpuri", "Mizo", "Moldavian", "Mongolian", "Montenegrin", 
-    "Morisyen (Mauritian Créole)", "Nagamese", "Nankam", "Nauru", "Navajo", "Ndebele", "Nepali", 
-    "Niuean", "Nkore", "Nobiin", "Northern Sotho (South Africa)", "Norwegian", "Norwegian (Bokmål)", 
-    "Norwegian Bokmaal (Norway)", "Norwegian Nynorsk (Norway)", "Nuer", "Nyanja", "Nyoro", 
-    "Occitan", "Oriya", "Oromo", "Ossetian", "Ottoman Turkish", "Pahari", "Pak Thai (Dambro) (SOU)", 
-    "Palauan", "Pampanga (Kapampangan)", "Pangasinan", "Papiamento", "Pashto", "Persian", 
-    "Pohnpeian", "Polish", "Portuguese", "Portuguese (Brazil)", "Portuguese (Portugal)", 
-    "Portuguese (Angola)", "Portuguese (Mozambique)", "Punjabi", "Punjabi (India)", 
-    "Punjabi (Pakistan)", "Quechua", "Quenya", "Ratotongan", "Rhaeto-Romance", "Rohingya", 
-    "Romanian", "Rundi", "Russian", "Saint Lucian Creole French", "Samoan", 
-    "Sango (Central African Republic)", "Sangro", "Sanskrit", "Santali", "Saraiki", "Sardinian", 
-    "Scottish Gaelic (Scotland)", "Sepedi", "Serbian", "Serbian (Cyrillic)", "Serbian (Latin)", 
-    "Serbian Montenegro (Cyrillic)", "Serbian Montenegro (Latin)", "Serbo-Croatian (SH)", 
-    "Seselwa Creole French", "Sesotho", "Setswana (Africa)", "Shan", "Sherpa (Nepal)", "Shona", 
-    "Sindarin", "Sindhi", "Singhalese", "Siswati", "Slovak", "Slovene", "Slovenian (SL)", 
-    "Somali", "Sorbian (Lower)", "Sorbian (Upper)", "Sotho", "Spanish (Argentina)", "Spanish (Bolivia)", 
-    "Spanish (Chile)", "Spanish (Colombia)", "Spanish (Costa Rica)", "Spanish (Cuba)", 
-    "Spanish (Dominican Republic)", "Spanish (Ecuador)", "Spanish (El Salvador)", "Spanish (Guatemala)", 
-    "Spanish (Honduras)", "Spanish (Latin America)", "Spanish (Mexico)", "Spanish (Nicaragua)", 
-    "Spanish (Panama)", "Spanish (Paraguay)", "Spanish (Spain)", "Spanish (USA)", "Sundanese (SU)", 
-    "Swahili (Burundi)", "Swahili (Kenya)", "Swahili (Rwanda)", "Swahili (Tanzania)", "Swahili (Uganda)", 
-    "Swedish", "Sylheti (SYL)", "Syriac", "Tagalog (TL)", "Tai Dam (Vietnam)", "Tajik (TG)", 
-    "Tamil", "Tamil Sri-Lankan", "Telugu", "Tetum", "Thai (TH)", "Tibetan (BO)", "Tigrinya (TI)", 
-    "Tok Pisin", "Tonga (Polynesian)", "Tongan", "Tulu", "Turkish", "Turkmen (TK)", "Twi (TW)", 
-    "Ukrainian", "Upper Guinea Creole", "Urdu", "Urdu (India)", "Uyghur", "Uzbek (UZ)", 
-    "Venda (VE)", "Vietnamese (VI)", "Waray-Waray (WW)", "Xhosa (XH)", "Xârâcùù (New Caledonia)", 
-    "Yagwoia", "Yiddish (Israel)", "Yiddish (USA)", "Yoruba", "Zomi/Zou", "Zulu (South Africa)"
+# Key language subset for quick checklist selection
+FEATURED_LANGUAGES = [
+    "English", "Japanese", "Hindi", "Marathi", "Tamil", "Telugu", 
+    "Bengali", "Gujarati", "Kannada", "Malayalam", "Punjabi", "Urdu",
+    "German", "French", "Spanish", "Italian", "Chinese (Simplified)", 
+    "Chinese (Traditional)", "Korean", "Arabic", "Russian"
+]
+
+CAT_TOOLS_LIST = [
+    "MateCat", "MemoQ", "Memsource", "Phrase", "SDL Trados 2019", 
+    "SDL Trados 2021", "SDL Trados 2022", "SmartCAT", "WordFast"
+]
+
+DOMAINS_LIST = [
+    "Banking & Finance", "E-learning", "Information Technology", "Legal & Patents", 
+    "Medical & Healthcare", "Manufacturing & Engineering", "Marketing & Advertising", 
+    "Pharmaceuticals", "Telecommunication", "General / Administrative"
+]
+
+SERVICES_LIST = [
+    "Translation", "Editing", "Proofreading / Review", "Machine Translation Post-Editing", 
+    "Subtitling", "Voice-Over", "Data Annotation", "Data Collection", "Transcreation"
 ]
 
 def get_file_data(filename):
@@ -152,46 +101,67 @@ with col_addr2:
     addr_city = st.text_input("City *")
     addr_country = st.text_input("Country *")
  
+# ==========================================
+# SECTION 2: QUALIFICATIONS, CHECKLISTS & RATES
+# ==========================================
 st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
-native = st.text_input("Native Language *", placeholder="e.g., Japanese")
+native = st.text_input("Native Language *", placeholder="e.g., Japanese, Hindi, Marathi")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 
-selected_source_langs = st.multiselect("Source Language(s) *:", LANGUAGES_POOL)
-selected_target_langs = st.multiselect("Target Language(s) *:", LANGUAGES_POOL)
- 
-cat_options = [
-    "MateCat", 
-    "MemoQ", 
-    "Memsource", 
-    "Phrase", 
-    "SDL Trados 2019", 
-    "SDL Trados 2021", 
-    "SDL Trados 2022", 
-    "SmartCAT", 
-    "WordFast"
-]
-selected_cat_tools = st.multiselect("Proficient in which of the following CAT Tools:", cat_options)
- 
-domain_options = [
-    "Banking", "Banking & Finance", "Dentistry", "E-learning", "Economics", 
-    "Education", "Electrical", "Electronics", "Electronics Appliances", 
-    "Employment Handbooks", "Finance", "General", "Health", "Health & Safety", 
-    "Help Documents", "Information Technology", "Insurance", 
-    "Law Patents, Trademarks, Copyrights", "Legal", "Logistics", 
-    "Manufacturing", "Marketing", "Medical", "Medical Diseases", 
-    "Patents", "Pharmaceuticals", "Retail", "Telecommunication", "Transport"
-]
-selected_domains = st.multiselect("Domain Expertise:", domain_options)
- 
-services_options = [
-    "Back Translation (Chars)", "Back Translation (Words)", "Closed Captioning", 
-    "Data Annotation", "Data Collection", "Editing", 
-    "Machine Translation and Full Post-Editing", "Machine Translation and Light Post-Editing", 
-    "Post-Editing", "Proofreading", "Review", "Revision", 
-    "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
-]
-selected_services = st.multiselect("Services you provide *:", services_options)
+# --- CHECKLIST: SOURCE LANGUAGES ---
+st.markdown("##### 🌐 Source Language(s) Checklist *")
+selected_source_langs = []
+src_cols = st.columns(3)
+for idx, lang in enumerate(FEATURED_LANGUAGES):
+    col_target = src_cols[idx % 3]
+    if col_target.checkbox(lang, key=f"src_{lang}"):
+        selected_source_langs.append(lang)
 
+other_src = st.text_input("Other Source Languages (if not listed above):", placeholder="e.g., Finnish, Hebrew")
+if other_src.strip():
+    selected_source_langs.append(other_src.strip())
+
+# --- CHECKLIST: TARGET LANGUAGES ---
+st.markdown("##### 🎯 Target Language(s) Checklist *")
+selected_target_langs = []
+tgt_cols = st.columns(3)
+for idx, lang in enumerate(FEATURED_LANGUAGES):
+    col_target = tgt_cols[idx % 3]
+    if col_target.checkbox(lang, key=f"tgt_{lang}"):
+        selected_target_langs.append(lang)
+
+other_tgt = st.text_input("Other Target Languages (if not listed above):", placeholder="e.g., Danish, Thai")
+if other_tgt.strip():
+    selected_target_langs.append(other_tgt.strip())
+
+# --- CHECKLIST: CAT TOOLS ---
+st.markdown("##### 🛠️ CAT Tools Proficiency Checklist")
+selected_cat_tools = []
+cat_cols = st.columns(3)
+for idx, tool in enumerate(CAT_TOOLS_LIST):
+    col_target = cat_cols[idx % 3]
+    if col_target.checkbox(tool, key=f"cat_{tool}"):
+        selected_cat_tools.append(tool)
+
+# --- CHECKLIST: DOMAIN EXPERTISE ---
+st.markdown("##### 📚 Domain Expertise Checklist")
+selected_domains = []
+dom_cols = st.columns(2)
+for idx, dom in enumerate(DOMAINS_LIST):
+    col_target = dom_cols[idx % 2]
+    if col_target.checkbox(dom, key=f"dom_{dom}"):
+        selected_domains.append(dom)
+
+# --- CHECKLIST: SERVICES ---
+st.markdown("##### ⚙️ Services Provided Checklist *")
+selected_services = []
+srv_cols = st.columns(3)
+for idx, srv in enumerate(SERVICES_LIST):
+    col_target = srv_cols[idx % 3]
+    if col_target.checkbox(srv, key=f"srv_{srv}"):
+        selected_services.append(srv)
+
+# --- RATES & PRICING ---
 st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
 rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
 with rate_curr_col:
@@ -201,6 +171,9 @@ with rate_trans_col:
 with rate_edit_col:
     rate_per_hour = st.number_input("Editing/Review Rate (per hour) *", min_value=0.00, step=0.50, format="%.2f")
 
+# ==========================================
+# SECTION 3: PAYMENT DETAILS
+# ==========================================
 st.markdown("#### 🏦 Section 3: Payment Details")
 col_fin1, col_fin2 = st.columns(2)
 with col_fin1:
@@ -228,6 +201,9 @@ with col_alt1:
 with col_alt2:
     pay_proz = st.text_input("ProZ*Pay Link")
  
+# ==========================================
+# SECTION 4: DOWNLOAD TEMPLATES
+# ==========================================
 st.markdown("#### 📥 Section 4: Download Standard Templates")
 nda_data = get_file_data("Fidel_NDA_Ver 1.3.pdf")
 po_data = get_file_data("Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf")
@@ -242,7 +218,7 @@ with d_col3:
     st.download_button("📥 Download Consent Form", data=consent_data, file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
 
 # ==========================================
-# 📝 SECTION 5: TRANSLATION EVALUATION TEST
+# SECTION 5: TRANSLATION EVALUATION TEST
 # ==========================================
 st.markdown("#### 📝 Section 5: Mandatory Translation Evaluation Test")
 st.write("Select your translation track below, download the respective assignment file, and upload your completed translation.")
@@ -262,7 +238,7 @@ if test_track == "English to Indian Languages":
 elif test_track == "English to Japanese":
     target_filename = "Test_English_to_Japanese.docx"
 elif test_track == "Japanese to English":
-    target_filename = "Test_Japanese_to_English.xlsx"
+    target_filename = "Test_Japanese_to_English.docx"
 
 if target_filename:
     test_file_data = get_file_data(target_filename)
@@ -280,7 +256,7 @@ if target_filename:
 file_test_attempt = st.file_uploader("Upload Your Completed Translation Test File *", type=['txt', 'doc', 'docx', 'pdf'])
 
 # ==========================================
-# 📤 Section 6: Compliance Documentation Submission
+# SECTION 6: COMPLIANCE DOCUMENTATION
 # ==========================================
 st.markdown("#### 📤 Section 6: Compliance Documentation Submission")
 file_cv = st.file_uploader("Upload Latest CV / Resume *", type=['pdf', 'doc', 'docx'])
@@ -289,7 +265,7 @@ file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
 file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
  
 # ==========================================
-# 🏅 Section 7: Additional Credentials & Certifications
+# SECTION 7: ADDITIONAL CREDENTIALS
 # ==========================================
 st.markdown("#### 🏅 Section 7: Additional Credentials & Certifications")
 file_cert = st.file_uploader("Upload Translation Certificate (if any)", type=['pdf', 'jpg', 'png'])
@@ -330,10 +306,10 @@ if st.button("Submit Onboarding Registration", type="primary"):
         st.session_state.submitted = True
         st.rerun()
     else:
-        st.error("❌ Submission Failed. Please make sure all mandatory fields (*) are complete and all files are uploaded.")
+        st.error("❌ Submission Failed. Please check that all mandatory checkboxes and fields (*) are filled.")
 
 # ==========================================
-# 5. CONCORDANCE AND ZIP COMPOSER PAD (.XLSX)
+# 5. ZIP PACKAGE COMPOSITION (.XLSX + FILES)
 # ==========================================
 if st.session_state.submitted:
     full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
