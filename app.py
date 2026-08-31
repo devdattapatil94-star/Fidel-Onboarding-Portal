@@ -59,34 +59,152 @@ SERVICES_OPTIONS = [
     "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
 ]
 
-# In-Portal Live Test Source Texts
+# EMBEDDED TEST PASSAGES FROM FIDEL VENDOR TEST FILES
 TEST_PASSAGES = {
-    "English to Indian Languages": (
-        "Fidel Softech provides end-to-end localization, translation, and technology services to global enterprises. "
-        "Maintaining terminology consistency, contextual accuracy, and strict adherence to domain guidelines is essential for all corporate deliverables."
-    ),
-    "English to Japanese": (
-        "Our vendor management team evaluates external linguists based on domain expertise, CAT tool proficiency, and quality benchmark tests. "
-        "Timely communication and strict compliance with project confidentiality requirements are mandatory."
-    ),
-    "Japanese to English": (
-        "当社はローカライゼーションおよびITソリューションを提供するグローバル企業です。"
-        "品質管理、情報セキュリティの順守、ならびに納期厳守を最優先事項として業務を遂行しています。"
-    )
+    "Test 1: IT Technical": """Groups, Roles, and Rights
+Users are able to perform tasks and gain access to specific features in XXX based on the rights held by their user account. To gain rights, user accounts must belong to the groups you set up in User Setup.
+By grouping user accounts, you can organize users and control the scope of their access within XXX. Using groups, roles, and rights, you can enhance the security of XXX, steer users to targeted content, and ensure that anonymous users are, automatically given appropriate rights.
+Groups are based on the roles they are assigned, while roles are based on the rights they are assigned. Rights, roles, and groups are defined as follows :
+A right is a permission to perform a specific task.
+A role is a set of rights typically consisting of a set of related rights that should be assigned together. However, you can create a role from any of the rights available in XXX.
+A group is a set of roles that defines the scope of a user account. Users can belong to more than one group, and their overall scope is determined, by all of the rights they have.
+
+Working with Roles
+Using roles, you can create a system of groups, each with a different scope, to meet user and administration needs. Roles are reusable, allowing you to associate the same role with any number of groups. A role for a group of users who publish events would typically include the following rights: Add event, Modify event, and Delete event. However, if some users are allowed only to add events, they must be placed in a second group, with a role that excludes the Delete event and Modify event rights.
+
+Adding a Role
+To add a new role:
+1. Click User Setup > Roles > Add.
+2. Enter a name for the new role in the Name field.
+3. Enter a description for the new role in the Description field.
+4. Select the rights you want the new role to have.
+5. Click Save to save the new role, or click Reset to delete the information you entered.""",
+
+    "Test 2: Engineering / Automation": """Understanding the Controller, Chassis, and I/O Modules for a XXX System
+Control hardware includes a Chassis (Rack), Power Supply, 1757-PLX52 Control Processor, XXX Interface, Redundancy Module, and I/O Modules. An optional Battery Extension Module (not shown) is also available. The Chassis is available in 5 sizes - 4, 7, 10, 13, and 17 slots.
+
+1. The Power Supply is separate from the Rack and does not consume any slots. It is mounted on the left end of the Rack. Both 120/240 VAC and 24 VDC supplies are available.
+2. The 1757-PLX52 Process Control Module is a double wide, two-board assembly featuring a 100 MHz PowerPC processor and eight (8) Mbytes of RAM with error detection and correction. It supports both non-redundant and redundant controller configurations. Four (4) Mbytes of parity-protected Flash ROM is used for permanent program storage and allows easy upgrades. A built-in lithium battery backs up the controller database, and an optional two-slot wide Battery Extension Module provides a rechargeable option instead of replacing the lithium battery.
+
+The Process Controller architecture, featuring the 1757-PLX52 Control Processor, handles a wide variety of requirements, including continuous processes, batch processes, discrete operations, and machine control needs. Compact and cost-effective, the 1757-PLX52 is ideal for integrated regulatory, fast logic, sequential, and batch control applications. Control functions are provided through a library of templates called Function Blocks (FBs). Strategies are easily built using a state-of-the-art graphical engineering tool called Control Builder. Once built, control strategies can be loaded and monitored using Control Builder.
+
+The Control Execution Environment (CEE) is the execution and scheduling environment for the 1757-PLX52 Control Processor. It is available in two base execution rates, 50 msec (normal) and 5 msec (fast) and is selected and loaded into the processor with Control Builder, so you can select the execution speed at development time.
+CEE is the underlying support layer for the execution of all control functions. It features:
+- Individual per-module selectable execution rates of 50, 100, 200, 500, 1000 and 2000 msec for the 50 msec CEE and 5, 10, 20, 50, 100 and 200 ms for the 5 msec CEE.
+- Configurable phase assignment of any modules executing slower than the base rate. This provides the ability to “load balance” a Control Processor.
+- Peer-to-peer communication between 1757-PLX52 Control Processors (PLX555 and other Legacy PLC’s, such as PLC5). Implementation is transparent so that peer-to-peer connections are configured in the same way as intra-controller connections.""",
+
+    "Test 3 (a): Medical - Study Protocol": """Purpose and Conduct
+You are being invited to participate in this post-marketing surveillance study to evaluate the safety and effectiveness of XYZ (ABC Acid), conducted by Health Care (P) Limited, because you have been prescribed XYZ (ABC Acid) by your doctor for the treatment of postmenopausal osteoporosis. 
+XYZ is an approved drug in more than 30 countries for the treatment of post-menopausal osteoporosis. The active ingredient in XYZ is ABC acid, which is available for injection use.
+The purpose of this surveillance study is to evaluate the safety and efficacy of XYZ (ABC Acid) treatment in patients with postmenopausal osteoporosis in daily clinical practice.
+Approximately 75 postmenopausal women (age range 50-76 years), spread across 15 centers in various cities of India, will participate in this surveillance study.  
+
+Visit 1 is the day when you visit the clinic for your condition and your doctor prescribes you with XYZ (ABC Acid) 5 mg, for your condition. During Visit 1, your doctor will perform a physical examination on you and collect information on your age, weight, height, vital signs (blood pressure and pulse rate), medical history and all previous treatments you have received for your condition. 
+You will receive a single 15-minute intravenous infusion of XYZ (ABC Acid) 5 mg, at baseline and at month 12. In addition, those patients who have inadequate dietary intake of calcium or vitamin D will receive daily calcium and vitamin D supplementation, as per the discretion of your doctor.
+
+You will be asked to return to the clinic for 9 more times at Day 7, Months 3, 6, 12, Day 7- post month 12, Months 15, 18, and 24, interval. These will be your Visits 2 to 9. During these visits your doctor will perform a medical examination to assess your vital signs (blood pressure and pulse rate) and monitor the progress you are making after infusion of XYZ (ABC Acid) 5 mg. Your doctor will also ask you questions on your overall satisfaction with the treatment and side effects you may have after taking the medication.""",
+
+    "Test 3 (b): Medical - Patient Leaflet": """Content of this leaflet:
+1. What is Diclofenac Na suppository CF and what is it used for?
+2. What you must know before you use Diclofenac Na suppository CF.
+3. How is Diclofenac Na suppository CF used?
+4. Possible side effects.
+5. How do you store Diclofenac Na suppository CF?
+
+DICLOFENAC NA SUPPOSITORY CF 50 mgs. suppositories
+- The active ingredient is diclofenacnatrium. One suppository contains 50 mg. diclofenacnatrium
+- Another ingredient (auxiliary) is long oil, (hard fat).
+
+DICLOFENAC NA SUPPOSITORY CF 100mg suppositories
+- The active ingredient is diclofenacnatrium. A suppository contains 100 mg. diclofenacnatrium
+- Another ingredient (auxiliary) is long oil, (hard fat).
+
+Registration holder of the medicine:
+Centrafarm Services B.V.
+Nieuwe Donk 9, 4879 AC Etten-Leur
+Diclofenac Na Suppository CF 50 mg. suppositories is registered in the Netherlands under RVG number 17260
+Diclofenac Na Suppository CF 100 mg. suppositories is registered in the Netherlands under RVG number 17261
+
+1. WHAT IS DICLOFENAC NA SUPPOSITORY CF AND WHAT IS IT USED FOR?
+Pharmaceutical form and content:
+Diclofenac Na Suppository 50 mg is a medicine in the form of suppositories. It is delivered in a strip package with 10 suppositories, packaged in multiples of 10 suppositories.
+Diclofenac Na Suppository 100 mg is a medicine in the form of suppositories. It is delivered in a strip package with 10 suppositories, packaged in multiples of 10 suppositories.
+
+Medicine group:
+Diclofenac belongs to the medicine group of NSAIDS. Diclofenac slows the creation of prostaglandins in the body. These substances are involved with infection symptoms, pain and fever. That is why Diclofenac has an anti-inflammatory, antifebril and pain killing effect. Therefore Diclofenac can be used as a pain killer and anti-inflammatory.
+
+Application of the medicine:
+Diclofenac NA is administered for the treatment of:
+- inflammations and debilitated joint functions as a consequence of rheumatism
+- inflammations of one or more joints (arthritis)
+- debilitated joints (artrosis), including the joints in the vertebral column
+- joint wear in the shoulder joints, a so-called frozen shoulder
+- pain and swelling after an accident or after dental or orthopedic intervention
+- treatment of a painful or irregular menstruation
+- illnesses which are accompanied by fever, especially infections""",
+
+    "Test 4: Finance / Economics": """Coming Bounce-Back Should Resemble Nifty Fifty
+Over the next month, the case for a severe synchronized global recession and a secular bear market may become the consensus for investment sophisticates. My guess is that the deepening gloom will lead to more weakness in equities, more strength in bonds, and perhaps a selling climax and some capitulation. The sentiment measures we monitor are showing rising bearishness but are not yet at the extreme levels we would want to see before buying. In this decline, the Old Economy sectors, particularly financials and consumer cyclicals, should be hit hard, and the rate of decline in TMT should decelerate. The collapse of corporate profits is driving stock prices, stock prices are affecting corporate actions like layoffs, and both are dampening consumer confidence and spending, which recycles back to profits.
+
+After equities have fallen further and discounted the gloom, at some point in the relatively near future, there should be a powerful rally. TMT sectors should have the biggest bounces. Many large-cap TMT names could double and still be far below their highs of last year. This action should be similar to that of the Nifty Fifty off the 1974 bottom. I would own Treasury bonds, the Euro, energy stocks, and US pharmaceuticals.
+
+Consumer Risk Rises Along with White-collar Layoffs
+Two factors lie behind the sharp deterioration on the US job front — an inventory correction and the imperatives of corporate cost cutting. The inventory dynamic is, of course, the hallmark of most business cycles. It takes a sharp, but temporary, toll on manufacturing employment, as industrial production is aligned with the depressed level of sales.
+
+Seeking Bottom
+Stocks weaken as US data oscillates between recovery and weakness. Tech continues to lead the way down, approaching the lows set last spring. Is there any reason to hope, or should 2001 be written off? There are a few reasons to suggest we may be in better shape and in a better mood at some point fairly soon.
+Positives include deep pessimism among investors, scattered signs of stabilization in the US and European economies, improving valuations, and a bear market that is approaching the long-toothed 1980–82 bear for longevity.
+Concerns include the need for broader signs of US macro stabilization coupled with corporate statements suggesting stabilization. Also, we believe more liquidity is necessary outside the US, from the ECB and the BoJ.""",
+
+    "Test 5: Marketing": """THE EXTENDED ENTERPRISE STORY
+The extended enterprise is not a new concept. Simply put, it means making the most of customer, employee, partner, and market interactions.
+Through a holistic blend of technology, services, and hosting solutions, [XXX] helps our clients extend their enterprise and create meaningful connections across the value chain.
+Explore [XXX] to learn more about the extended enterprise and the meaningful connections that can enhance your business.
+
+---------------
+A New Business Imperative is Emerging
+Business systems are reaching outside of the enterprise. There is a new emphasis on creating dialogues with customers, employees, partners, and markets. This requires deeper customer knowledge, better interaction management, and value chain integration.
+The extended enterprise presents a new set of challenges – and opportunities.
+
+[XXX] is the Extended Enterprise Company
+[XXX] is uniquely positioned to address this new business imperative.
+[XXX]’s holistic service offerings begin with a Professional Services group that combines strong industry knowledge, brand-building capabilities, and world-class systems integration skills that help our customers strategize and quickly deploy extended enterprise systems.
+
+[XXX] Managed Services provide hosting solutions for complex, mission-critical applications. We can design and deploy extended enterprise architectures that guarantee application availability up to 99.95 percent.
+
+[XXX]’s Software Services focus on the technology and Web Services that optimize the outer reaches of the value chain through content management, customer interaction, and collaboration solutions.
+Together, [XXX] service offerings deliver integrated solutions to any company seeking to extend their enterprise…. and their profits.
+
+[XXX]’s Global Reach
+Global reach is a critical factor in providing true extended enterprise solutions. A large portion of our customers are among the Global 5000 with vast and complex international operations. These enterprises need a partner that stretches beyond the boundaries of geography and time zones to provide a broad range of solutions.""",
+
+    "Test 6: Legal": """SOFTWARE LICENSE AGREEMENT
+1. GRANT OF LICENSE. XXXXX Ltd. (“XXXXX”) grants you the right to use one copy of the enclosed XXXXX software programs (the ‘Software”), for example, XXXXX’s YYY YYY system software, YYY YYY, YYY YYY , XXXXX's industry specific databases, and all related utilities on a single terminal connected to a single computer (i.e., with a single CPU). You may not network the Software or otherwise use it on more than one computer terminal at the same time.
+
+2. COPYRIGHT. The copyright in the Software is owned by XXXXX and is protected by Canadian and United States copyright laws and international treaty provisions. You must treat the Software as copyrighted material except that you may either (a) make one copy of the Software solely for backup or archival purposes, or (b) transfer the Software to a single hard disk provided you keep the original solely for backup or archival purposes. You may not copy the written materials accompanying the Software.
+
+3. TERM OF LICENSE. If you fail to comply with any term of this Agreement, the license is terminated. If the software is being provided to you on loan, the license will terminate when the loan is terminated. Otherwise, the license will continue until you physically destroy all copies of the Software and merged portions thereof, and return the original program diskette and documentation to XXXXX.
+
+4. OTHER RESTRICTIONS. You may not rent or lease the Software, but you may transfer the Software and accompanying written materials on a permanent basis provided you retain no copies and the recipient agrees to the terms of this Agreement, and the terms of any applicable loan agreement with XXXXX. If Software is an update, any transfer must include the update and all prior versions. Data may not be imported for use into any loaned YYY YYY report generation module from applications other than YYY YYY. You may not reverse engineer, decompile, disassemble, or translate the Software.
+
+5. ENHANCEMENTS AND UPDATES. From time to time, at its sole discretion, XXXXX may provide enhancements, updates or new versions of the Software on its then standard terms and conditions thereof. This Agreement shall apply to such enhancements.
+
+LIMITED WARRANTY. You assume all responsibility for the selection of the Software as appropriate to achieve the results you intend. XXXXX warrants that the enclosed medium upon which the Software is recorded shall be free from defects in material and workmanship under normal use and conditions, and that the Software shall perform substantially as described in its documentation for a period of ninety (90) days from purchase. EXCEPT FOR THE FOREGOING LIMITED WARRANTY, THE SOFTWARE IS PROVIDED, AS IS, WITHOUT WARRANTY OF ANY KIND EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."""
 }
 
 # ==========================================
-# 2. HELPER FUNCTIONS (SMTP DISPATCH)
+# 2. HELPER FUNCTIONS (AUTO DISPATCH)
 # ==========================================
 def auto_send_email_to_vm(zip_data, vendor_name, vendor_email):
-    """Silently dispatches the onboarding ZIP directly to vendor-mgmt@fideltech.com via SMTP."""
+    """Dispatches onboarding ZIP directly to vendor-mgmt@fideltech.com via SMTP."""
     smtp_server = st.secrets.get("SMTP_SERVER", "smtp.gmail.com")
     smtp_port = int(st.secrets.get("SMTP_PORT", 587))
     sender_email = st.secrets.get("SENDER_EMAIL", "")
     sender_password = st.secrets.get("SENDER_PASSWORD", "")
 
     if not sender_email or not sender_password:
-        return False, "SMTP secret keys (SENDER_EMAIL/SENDER_PASSWORD) are not configured."
+        return False, "SMTP secrets (SENDER_EMAIL/SENDER_PASSWORD) not configured."
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
@@ -105,17 +223,16 @@ def auto_send_email_to_vm(zip_data, vendor_name, vendor_email):
     • Submission Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
     The attached ZIP package contains:
-    1. Plunet-ready Excel Vendor Matrix
-    2. Digital Compliance & Signature Agreement
-    3. In-Portal Live Translation Evaluation Test
-    4. Uploaded CV & Supporting Credentials
+    1. Vendor Profile Matrix (Excel)
+    2. Digital Compliance Execution Certificate
+    3. In-Portal Live Translation Test Output
+    4. Uploaded CV & Credentials
 
     Regards,
     Fidel Resource Onboarding System
     """
     msg.attach(MIMEText(body, 'plain'))
 
-    # Attach ZIP archive
     zip_filename = f"{vendor_name.replace(' ', '_')}_Onboarding_Package.zip"
     part = MIMEApplication(zip_data, Name=zip_filename)
     part['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
@@ -130,7 +247,6 @@ def auto_send_email_to_vm(zip_data, vendor_name, vendor_email):
         return True, "Successfully dispatched to Vendor Management."
     except Exception as e:
         return False, str(e)
-
 
 # ==========================================
 # 3. HEADER LAYOUT
@@ -284,22 +400,27 @@ with col_alt2:
 # SECTION 4: IN-PORTAL LIVE TRANSLATION EVALUATION TEST
 # ========================================================
 st.markdown("#### Section 4: Mandatory Translation Evaluation Test")
-st.write("Select your translation track below and complete the test directly in the text area.")
+st.write("Translate ONLY the test related to your area of expertise below. Do not use machine translation tools.")
 
-test_track = st.selectbox("Select Translation Test Track *", [
+test_track = st.selectbox("Select Domain Test Track *", [
     "-- Choose Track --", 
-    "English to Indian Languages", 
-    "English to Japanese", 
-    "Japanese to English"
+    "Test 1: IT Technical",
+    "Test 2: Engineering / Automation",
+    "Test 3 (a): Medical - Study Protocol",
+    "Test 3 (b): Medical - Patient Leaflet",
+    "Test 4: Finance / Economics",
+    "Test 5: Marketing",
+    "Test 6: Legal"
 ])
 
 live_translation_input = ""
 if test_track != "-- Choose Track --":
-    st.info(f"**Source Text ({test_track}):**\n\n{TEST_PASSAGES[test_track]}")
+    st.markdown(f"**Source Text ({test_track}):**")
+    st.info(TEST_PASSAGES[test_track])
     live_translation_input = st.text_area(
-        "Type your translated text here *", 
-        height=180, 
-        placeholder="Enter your translated text here..."
+        "Type your complete translation below *", 
+        height=250, 
+        placeholder="Type your complete translation here..."
     )
 
 # ========================================================
@@ -309,9 +430,9 @@ st.markdown("#### Section 5: Legal Compliance & Digital Signature")
 
 with st.expander("Review Fidel Terms, NDA (v1.3), PO Guidelines & Data Consent Policy"):
     st.markdown("""
-    **Summary of Terms:**
-    1. **Confidentiality:** All materials, source files, and project communications remain the strict property of Fidel Softech.
-    2. **Quality Assurance:** Work delivered must comply with agreed glossaries, style guides, and translation standards.
+    **Important Instructions & Terms:**
+    1. **Confidentiality:** All materials, software terms, and project communications remain the strict property of Fidel Softech Ltd.
+    2. **Machine Translation Policy:** You must translate without taking the help of any machine translation tool (e.g., Google Translate).
     3. **Data Protection:** Personal information provided in this form is processed strictly for vendor management and empanelment auditing.
     """)
 
@@ -438,6 +559,7 @@ Status: ELECTRONICALLY SIGNED & VERIFIED IN-PORTAL
 """
 
             # 3. Live Translation Test File Content
+            clean_track_name = test_track.replace(' ', '_').replace(':', '').replace('/', '_')
             live_test_content = f"""FIDEL SOFTECH - IN-PORTAL TRANSLATION EVALUATION TEST
 ------------------------------------------------------------
 Candidate: {full_vendor_name}
@@ -459,7 +581,7 @@ CANDIDATE TRANSLATION:
                 # Add Digital Signature Certificate
                 zip_file.writestr("Digital_Signature_Certificate.txt", sig_cert_text.encode('utf-8'))
                 # Add Completed Translation Test Output
-                zip_file.writestr(f"Completed_Translation_Test_{test_track.replace(' ', '_')}.txt", live_test_content.encode('utf-8'))
+                zip_file.writestr(f"Completed_Test_{clean_track_name}.txt", live_test_content.encode('utf-8'))
                 
                 # Add Uploaded Files
                 if file_cv:
