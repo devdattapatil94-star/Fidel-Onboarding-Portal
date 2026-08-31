@@ -123,39 +123,72 @@ st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 
-# --- SOURCE & TARGET LANGUAGES ---
-selected_source_langs = st.multiselect(
-    "Source Language(s) * (Click to open dropdown & select with tickmarks):", 
-    LANGUAGES_POOL,
-    placeholder="Choose source language(s)..."
-)
+# --- SOURCE LANGUAGES (CHECKLIST INSIDE DROPDOWN) ---
+selected_source_langs = []
+src_label = f"🌐 Source Language(s) * ({len(selected_source_langs)} selected)"
+with st.expander("🌐 Click to open Source Language(s) dropdown checklist *"):
+    src_cols = st.columns(3)
+    for idx, lang in enumerate(LANGUAGES_POOL):
+        col_target = src_cols[idx % 3]
+        if col_target.checkbox(lang, key=f"src_dd_{lang}"):
+            selected_source_langs.append(lang)
+    other_src = st.text_input("Other Source Languages (if not listed):", key="src_other_txt", placeholder="e.g., Finnish, Hebrew")
+    if other_src.strip():
+        selected_source_langs.append(other_src.strip())
 
-selected_target_langs = st.multiselect(
-    "Target Language(s) * (Click to open dropdown & select with tickmarks):", 
-    LANGUAGES_POOL,
-    placeholder="Choose target language(s)..."
-)
+if selected_source_langs:
+    st.caption(f"**Selected Source:** {', '.join(selected_source_langs)}")
 
-# --- CAT TOOLS ---
-selected_cat_tools = st.multiselect(
-    "Proficient in which of the following CAT Tools:", 
-    CAT_OPTIONS,
-    placeholder="Select CAT tools..."
-)
+# --- TARGET LANGUAGES (CHECKLIST INSIDE DROPDOWN) ---
+selected_target_langs = []
+with st.expander("🎯 Click to open Target Language(s) dropdown checklist *"):
+    tgt_cols = st.columns(3)
+    for idx, lang in enumerate(LANGUAGES_POOL):
+        col_target = tgt_cols[idx % 3]
+        if col_target.checkbox(lang, key=f"tgt_dd_{lang}"):
+            selected_target_langs.append(lang)
+    other_tgt = st.text_input("Other Target Languages (if not listed):", key="tgt_other_txt", placeholder="e.g., Danish, Thai")
+    if other_tgt.strip():
+        selected_target_langs.append(other_tgt.strip())
 
-# --- DOMAIN EXPERTISE ---
-selected_domains = st.multiselect(
-    "Domain Expertise:", 
-    DOMAIN_OPTIONS,
-    placeholder="Select domain expertise..."
-)
+if selected_target_langs:
+    st.caption(f"**Selected Target:** {', '.join(selected_target_langs)}")
 
-# --- SERVICES PROVIDED ---
-selected_services = st.multiselect(
-    "Services you provide *:", 
-    SERVICES_OPTIONS,
-    placeholder="Select services..."
-)
+# --- CAT TOOLS (CHECKLIST INSIDE DROPDOWN) ---
+selected_cat_tools = []
+with st.expander("🛠️ Click to open CAT Tools dropdown checklist"):
+    cat_cols = st.columns(3)
+    for idx, tool in enumerate(CAT_OPTIONS):
+        col_target = cat_cols[idx % 3]
+        if col_target.checkbox(tool, key=f"cat_dd_{tool}"):
+            selected_cat_tools.append(tool)
+
+if selected_cat_tools:
+    st.caption(f"**Selected CAT Tools:** {', '.join(selected_cat_tools)}")
+
+# --- DOMAIN EXPERTISE (CHECKLIST INSIDE DROPDOWN) ---
+selected_domains = []
+with st.expander("📚 Click to open Domain Expertise dropdown checklist"):
+    dom_cols = st.columns(2)
+    for idx, dom in enumerate(DOMAIN_OPTIONS):
+        col_target = dom_cols[idx % 2]
+        if col_target.checkbox(dom, key=f"dom_dd_{dom}"):
+            selected_domains.append(dom)
+
+if selected_domains:
+    st.caption(f"**Selected Domains:** {', '.join(selected_domains)}")
+
+# --- SERVICES PROVIDED (CHECKLIST INSIDE DROPDOWN) ---
+selected_services = []
+with st.expander("⚙️ Click to open Services Provided dropdown checklist *"):
+    srv_cols = st.columns(3)
+    for idx, srv in enumerate(SERVICES_OPTIONS):
+        col_target = srv_cols[idx % 3]
+        if col_target.checkbox(srv, key=f"srv_dd_{srv}"):
+            selected_services.append(srv)
+
+if selected_services:
+    st.caption(f"**Selected Services:** {', '.join(selected_services)}")
 
 # --- MANDATORY SERVICE RATES & PRICING ---
 st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
