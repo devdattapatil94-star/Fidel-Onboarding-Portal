@@ -2,7 +2,6 @@ import os
 import io
 import zipfile
 import smtplib
-import socket
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
@@ -60,12 +59,12 @@ SERVICES_OPTIONS = [
     "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
 ]
 
-# EMBEDDED DOMAIN EVALUATION TESTS
+# EMBEDDED TEST PASSAGES FROM FIDEL VENDOR TEST FILES
 TEST_PASSAGES = {
     "Test 1: IT Technical": """Groups, Roles, and Rights
 Users are able to perform tasks and gain access to specific features in XXX based on the rights held by their user account. To gain rights, user accounts must belong to the groups you set up in User Setup.
 By grouping user accounts, you can organize users and control the scope of their access within XXX. Using groups, roles, and rights, you can enhance the security of XXX, steer users to targeted content, and ensure that anonymous users are, automatically given appropriate rights.
-Groups are based on the roles they are assigned, while roles are based on the rights they are assigned. Rights, roles, and groups are defined as follows:
+Groups are based on the roles they are assigned, while roles are based on the rights they are assigned. Rights, roles, and groups are defined as follows :
 A right is a permission to perform a specific task.
 A role is a set of rights typically consisting of a set of related rights that should be assigned together. However, you can create a role from any of the rights available in XXX.
 A group is a set of roles that defines the scope of a user account. Users can belong to more than one group, and their overall scope is determined, by all of the rights they have.
@@ -195,15 +194,8 @@ LIMITED WARRANTY. You assume all responsibility for the selection of the Softwar
 }
 
 # ==========================================
-# 2. HELPER FUNCTIONS
+# 2. HELPER FUNCTIONS (AUTO DISPATCH)
 # ==========================================
-def get_client_ip():
-    """Captures host/IP metadata for digital audit trails."""
-    try:
-        return socket.gethostbyname(socket.gethostname())
-    except:
-        return "127.0.0.1"
-
 def auto_send_email_to_vm(zip_data, vendor_name, vendor_email):
     """Dispatches onboarding ZIP directly to vendor-mgmt@fideltech.com via SMTP."""
     smtp_server = st.secrets.get("SMTP_SERVER", "smtp.gmail.com")
@@ -228,13 +220,13 @@ def auto_send_email_to_vm(zip_data, vendor_name, vendor_email):
     ------------------
     • Name: {vendor_name}
     • Email: {vendor_email}
-    • Submission Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")}
+    • Submission Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
     The attached ZIP package contains:
     1. Vendor Profile Matrix (Excel)
-    2. Full Legal Audit & Electronic Signature Certificate
-    3. In-Portal Live Translation Test Submission
-    4. Uploaded CV & Supporting Credentials
+    2. Digital Compliance Execution Certificate
+    3. In-Portal Live Translation Test Output
+    4. Uploaded CV & Credentials
 
     Regards,
     Fidel Resource Onboarding System
@@ -269,7 +261,7 @@ with col_logo:
 with col_title:
     st.markdown("<h1 style='margin: 0; padding: 0; font-size: 2.25rem; white-space: nowrap;'>Fidel Softech Resource Onboarding</h1>", unsafe_allow_html=True)
 
-st.markdown("Please complete the official empanelment profile form, take the live evaluation test, and execute your electronic signature below.")
+st.markdown("Please complete the official empanelment profile form, take the live evaluation test, and digitally sign your agreement below.")
 st.markdown("---")
 
 st.subheader("Resource Empanelment Profile")
@@ -309,13 +301,13 @@ with col_addr2:
     addr_country = st.text_input("Country *")
 
 # ========================================================
-# SECTION 2: QUALIFICATIONS, LANGUAGES & RATES
+# --- SECTION 2: QUALIFICATIONS, LANGUAGES & RATES ---
 # ========================================================
 st.markdown("#### Section 2: Qualifications, Languages & Rates")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 
-# --- SOURCE & TARGET LANGUAGES ---
+# --- SOURCE & TARGET LANGUAGES (STANDARD MULTISELECT DROPDOWNS) ---
 selected_source_langs = st.multiselect(
     "Source Language(s) *:", 
     LANGUAGES_POOL,
@@ -328,7 +320,7 @@ selected_target_langs = st.multiselect(
     placeholder="Choose target language(s)..."
 )
 
-# --- CAT TOOLS ---
+# --- CAT TOOLS (EXPANDABLE CHECKLIST DROPDOWN) ---
 selected_cat_tools = []
 with st.expander("Click to open CAT Tools dropdown checklist"):
     cat_cols = st.columns(3)
@@ -340,7 +332,7 @@ with st.expander("Click to open CAT Tools dropdown checklist"):
 if selected_cat_tools:
     st.caption(f"**Selected CAT Tools:** {', '.join(selected_cat_tools)}")
 
-# --- DOMAIN EXPERTISE ---
+# --- DOMAIN EXPERTISE (EXPANDABLE CHECKLIST DROPDOWN) ---
 selected_domains = []
 with st.expander("Click to open Domain Expertise dropdown checklist"):
     dom_cols = st.columns(2)
@@ -352,7 +344,7 @@ with st.expander("Click to open Domain Expertise dropdown checklist"):
 if selected_domains:
     st.caption(f"**Selected Domains:** {', '.join(selected_domains)}")
 
-# --- SERVICES PROVIDED ---
+# --- SERVICES PROVIDED (EXPANDABLE CHECKLIST DROPDOWN) ---
 selected_services = []
 with st.expander("Click to open Services Provided dropdown checklist *"):
     srv_cols = st.columns(3)
@@ -432,64 +424,41 @@ if test_track != "-- Choose Track --":
     )
 
 # ========================================================
-# SECTION 5: NDA, CONSENT & VENDOR POLICIES
+# SECTION 5: DIGITAL / E-SIGNATURE & COMPLIANCE
 # ========================================================
-st.markdown("#### Section 5: Legal Agreements & Vendor Policies")
+st.markdown("#### Section 5: Legal Compliance & Digital Signature")
 
-# 5.1 NDA
-st.markdown("##### 1. NDA & Confidentiality Agreement *")
-with st.expander("Review Fidel Non-Disclosure Agreement (v1.3)"):
+with st.expander("Review Fidel Terms, NDA (v1.3), PO Guidelines & Data Consent Policy"):
     st.markdown("""
-    **CONFIDENTIALITY AGREEMENT TERMS:**
-    - The linguist agrees that all source materials, translation memory, glossaries, customer details, and business data provided by Fidel Softech Limited remain strictly confidential.
-    - Reproduction, sharing, or uploading project files to unauthorized third-party servers, public translation forums, or machine translation engines is strictly prohibited.
+    **Important Instructions & Terms:**
+    1. **Confidentiality:** All materials, software terms, and project communications remain the strict property of Fidel Softech Ltd.
+    2. **Machine Translation Policy:** You must translate without taking the help of any machine translation tool (e.g., Google Translate).
+    3. **Data Protection:** Personal information provided in this form is processed strictly for vendor management and empanelment auditing.
     """)
-nda_check = st.checkbox("I Confirm that I have read and understood the NDA and agree to comply with all confidentiality requirements applicable to my work with Fidel Softech Limited. *")
 
-# 5.2 Consent / Data Privacy
-st.markdown("##### 2. Consent & Data Privacy *")
-consent_business = st.checkbox("I consent to Fidel Softech Limited collecting and processing my personal and professional information for vendor registration, project allocation, payment processing and related business purposes. *")
-consent_marketing = st.checkbox("I consent to receiving optional Fidel newsletter updates, industry news, and promotional communications (Optional).")
-
-# 5.3 Vendor Policies & Terms
-st.markdown("##### 3. Vendor Policies & Code of Conduct *")
-policy_payment = st.checkbox("I have read and agree to comply with Fidel's Vendor Payment Policy and PO procedures. *")
-policy_aimt = st.checkbox("I agree to strict AI/MT usage restrictions: I will not use unauthorized machine translation engines (e.g., Google Translate) without explicit written project authorization. *")
-policy_code = st.checkbox("I agree to abide by Fidel's Code of Conduct, Quality Standards, and Conflict-of-Interest guidelines. *")
-
-# ========================================================
-# SECTION 6: ELECTRONIC SIGNATURE & AUDIT TRAIL
-# ========================================================
-st.markdown("#### Section 6: Electronic Signature Execution")
-st.write("Your typed legal signature below will generate a binding digital execution record tied to your IP address and timestamp.")
-
+st.markdown("##### Digital Signature Execution *")
 sig_col1, sig_col2 = st.columns(2)
 with sig_col1:
-    digital_sig_name = st.text_input("Full Legal Name (Electronic Signature) *", placeholder="Enter your full legal name")
+    digital_sig_name = st.text_input("Full Legal Name (Digital Signature) *", placeholder="e.g., Jane Doe")
 with sig_col2:
-    digital_sig_date = st.text_input("Execution Timestamp", value=datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"), disabled=True)
+    digital_sig_date = st.text_input("Date of Execution", value=datetime.now().strftime("%Y-%m-%d"), disabled=True)
 
-e_signature_ack = st.checkbox("I declare that typing my full legal name above constitutes a binding Electronic Signature under applicable law. *")
+digital_nda_agreed = st.checkbox("I confirm that typing my full legal name above serves as a legally binding electronic signature under applicable digital transaction laws. *")
 
 # ========================================================
-# SECTION 7: CREDENTIAL & CV UPLOADS
+# SECTION 6: CREDENTIAL & CV UPLOADS
 # ========================================================
-st.markdown("#### Section 7: Document Uploads")
+st.markdown("#### Section 6: Document Uploads")
 file_cv = st.file_uploader("Upload Latest CV / Resume *", type=['pdf', 'doc', 'docx'])
 file_cert = st.file_uploader("Upload Educational / Professional Certificates (Optional)", type=['pdf', 'jpg', 'png', 'zip'])
 
-# ========================================================
-# SECTION 8: FINAL DECLARATION & SINGLE SUBMIT
-# ========================================================
-st.markdown("---")
-st.markdown("#### Section 8: Final Declaration")
-
-declaration_check = st.checkbox("I confirm that the information provided by me is accurate and complete. I understand that providing false or misleading information may affect my registration and eligibility for projects. *")
-
 st.markdown("---")
 
-if st.button("I Confirm and Submit My Application", type="primary", use_container_width=True):
-    # Comprehensive Validation
+# ========================================================
+# 5. UNIFIED SINGLE "SUBMIT" BUTTON & PROCESSING
+# ========================================================
+if st.button("Submit Onboarding Registration", type="primary", use_container_width=True):
+    # Field Validation
     errors = []
     if not (f_name and f_name.strip()):
         errors.append("First Name is required.")
@@ -515,32 +484,22 @@ if st.button("I Confirm and Submit My Application", type="primary", use_containe
         errors.append("Please select a Translation Test Track.")
     if not (live_translation_input and live_translation_input.strip()):
         errors.append("Please complete your translation test in the text area.")
-    if not nda_check:
-        errors.append("You must agree to the NDA & Confidentiality Agreement.")
-    if not consent_business:
-        errors.append("Business data processing consent is required.")
-    if not (policy_payment and policy_aimt and policy_code):
-        errors.append("You must accept all mandatory Vendor Policies (Payment, AI/MT restriction, Code of Conduct).")
-    if not (digital_sig_name and digital_sig_name.strip()) or not e_signature_ack:
-        errors.append("Electronic Signature and acknowledgment are required.")
+    if not (digital_sig_name and digital_sig_name.strip()) or not digital_nda_agreed:
+        errors.append("Digital Signature and Agreement Checkbox are required.")
     if not file_cv:
         errors.append("Please upload your Resume/CV.")
-    if not declaration_check:
-        errors.append("You must check the Final Declaration box to submit.")
 
     if errors:
         for err in errors:
             st.error(f"❌ {err}")
     else:
-        with st.spinner("Processing registration, packaging compliance certificate & emailing Vendor Management..."):
+        with st.spinner("Processing registration, generating compliance certificate, and packaging files..."):
             full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
             clean_name = full_vendor_name.replace(' ', '_')
-            client_ip = get_client_ip()
-            timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-            # 1. Master Vendor Excel Record
+            # 1. Master Vendor Excel Record Data
             vendor_data = {
-                "Registration Date": [timestamp_str],
+                "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
                 "First Name": [f_name.strip()],
                 "Last Name": [l_name.strip()],
                 "Email ID": [v_email.strip()],
@@ -573,16 +532,9 @@ if st.button("I Confirm and Submit My Application", type="primary", use_containe
                 "Payoneer ID": [pay_payoneer.strip()],
                 "ProZ Link": [pay_proz.strip()],
                 "Test Track Selected": [test_track],
-                "NDA Agreed": ["Yes"],
-                "Business Data Consent": ["Yes"],
-                "Marketing Consent": ["Yes" if consent_marketing else "No"],
-                "Payment Policy Agreed": ["Yes"],
-                "AI/MT Policy Agreed": ["Yes"],
-                "Code of Conduct Agreed": ["Yes"],
-                "Electronic Signature Name": [digital_sig_name.strip()],
-                "Signature Timestamp": [timestamp_str],
-                "Signer IP Address": [client_ip],
-                "Final Declaration Confirmed": ["Yes"]
+                "Digital Signature Name": [digital_sig_name.strip()],
+                "Digital Signature Date": [digital_sig_date],
+                "E-Signature Agreed": ["Yes"]
             }
 
             df_individual = pd.DataFrame(vendor_data)
@@ -591,32 +543,28 @@ if st.button("I Confirm and Submit My Application", type="primary", use_containe
                 df_individual.to_excel(writer, index=False, sheet_name="Vendor Onboarding Matrix")
             excel_bytes = excel_buffer.getvalue()
 
-            # 2. Complete Electronic Signature Legal Certificate
-            sig_cert_text = f"""FIDEL SOFTECH LIMITED - LEGAL E-SIGNATURE AUDIT CERTIFICATE
-----------------------------------------------------------------------
-Signatory Full Legal Name : {digital_sig_name.strip()}
-Signatory Email Address   : {v_email.strip()}
-Recorded IP Address       : {client_ip}
-Execution Timestamp       : {timestamp_str}
+            # 2. Digital Signature Certificate Document
+            sig_cert_text = f"""FIDEL SOFTECH - DIGITAL COMPLIANCE EXECUTION CERTIFICATE
+------------------------------------------------------------
+Signatory Name: {digital_sig_name.strip()}
+Signatory Email: {v_email.strip()}
+Execution Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")}
 
-EXECUTED LEGAL AGREEMENTS & ACKNOWLEDGMENTS:
-[X] Fidel NDA & Confidentiality Agreement (v1.3)
-[X] Business Data Processing & Empanelment Consent
-[X] Fidel Vendor Payment Policy & Guidelines
-[X] Strict AI / MT Restriction & No-Google-Translate Policy
-[X] Fidel Code of Conduct & Quality Guidelines
-[X] Final Accuracy & Accuracy Declaration
+Agreed Policies:
+- Fidel Non-Disclosure Agreement (NDA v1.3)
+- Fidel PO Terms & Conditions
+- Fidel Data Consent & Privacy Policy
 
-STATUTORY AUDIT LOG STATUS: VERIFIED ELECTRONICALLY VIA PORTAL DISPATCH
+Status: ELECTRONICALLY SIGNED & VERIFIED IN-PORTAL
 """
 
             # 3. Live Translation Test File Content
             clean_track_name = test_track.replace(' ', '_').replace(':', '').replace('/', '_')
             live_test_content = f"""FIDEL SOFTECH - IN-PORTAL TRANSLATION EVALUATION TEST
 ------------------------------------------------------------
-Candidate Name : {full_vendor_name}
-Domain Track   : {test_track}
-Submission Date: {timestamp_str}
+Candidate: {full_vendor_name}
+Track: {test_track}
+Submission Date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 SOURCE TEXT:
 {TEST_PASSAGES.get(test_track, '')}
@@ -628,10 +576,14 @@ CANDIDATE TRANSLATION:
             # 4. ZIP Package Compilation
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                # Add Excel Profile Matrix
                 zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_bytes)
-                zip_file.writestr("Legal_Electronic_Signature_Audit.txt", sig_cert_text.encode('utf-8'))
+                # Add Digital Signature Certificate
+                zip_file.writestr("Digital_Signature_Certificate.txt", sig_cert_text.encode('utf-8'))
+                # Add Completed Translation Test Output
                 zip_file.writestr(f"Completed_Test_{clean_track_name}.txt", live_test_content.encode('utf-8'))
                 
+                # Add Uploaded Files
                 if file_cv:
                     ext = os.path.splitext(file_cv.name)[1]
                     zip_file.writestr(f"CV_Resume{ext}", file_cv.getvalue())
@@ -646,13 +598,13 @@ CANDIDATE TRANSLATION:
             sent, status_msg = auto_send_email_to_vm(final_zip_bytes, full_vendor_name, v_email.strip())
 
             st.balloons()
-            st.success("🎉 Application & Legal Execution Submitted Successfully!")
+            st.success("🎉 Application Submitted Successfully!")
             
             if sent:
-                st.info("✉️ All profile data, digital legal agreements, translation test outputs, and CV files have been automatically delivered to `vendor-mgmt@fideltech.com`.")
+                st.info("✉️ All details, digital signatures, translation test results, and documents have been automatically delivered to the Vendor Management team (`vendor-mgmt@fideltech.com`).")
             else:
                 st.warning(f"⚠️ Direct dispatch notice: {status_msg}")
-                st.write("You can download your submission package archive below:")
+                st.write("You can also download a copy of your completed registration package below:")
                 st.download_button(
                     label="📥 Download Submission Archive (.zip)",
                     data=final_zip_bytes,
