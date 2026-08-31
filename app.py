@@ -80,12 +80,12 @@ with col_title:
 st.markdown("Please complete the official empanelment profile form below, complete the translation test task, and upload your paperwork.")
 st.markdown("---")
 
-st.subheader("📄 Resource Empanelment Profile")
+st.subheader("Resource Empanelment Profile")
 
 # ==========================================
 # 3. FORM SECTIONS
 # ==========================================
-st.markdown("#### 👤 Section 1: Personal Information")
+st.markdown("#### Section 1: Personal Information")
 col1, col2 = st.columns(2)
 with col1:
     f_name = st.text_input("First Name *", placeholder="Enter your first name")
@@ -105,7 +105,7 @@ with col2:
 
 avail = st.selectbox("Availability Status", ["Full-time", "Part-time"])
 
-st.markdown("##### 🏠 Address Information")
+st.markdown("##### Address Information")
 col_addr1, col_addr2 = st.columns(2)
 with col_addr1:
     addr_street = st.text_input("Street")
@@ -119,44 +119,26 @@ with col_addr2:
 # ========================================================
 # --- SECTION 2: QUALIFICATIONS, LANGUAGES & RATES ---
 # ========================================================
-st.markdown("#### 🎓 Section 2: Qualifications, Languages & Rates")
+st.markdown("#### Section 2: Qualifications, Languages & Rates")
 native = st.text_input("Native Language *", placeholder="e.g., Japanese")
 exp = st.slider("Years of Translation Experience", 0, 40, 2)
 
-# --- SOURCE LANGUAGES (CHECKLIST INSIDE DROPDOWN) ---
-selected_source_langs = []
-src_label = f"🌐 Source Language(s) * ({len(selected_source_langs)} selected)"
-with st.expander("🌐 Click to open Source Language(s) dropdown checklist *"):
-    src_cols = st.columns(3)
-    for idx, lang in enumerate(LANGUAGES_POOL):
-        col_target = src_cols[idx % 3]
-        if col_target.checkbox(lang, key=f"src_dd_{lang}"):
-            selected_source_langs.append(lang)
-    other_src = st.text_input("Other Source Languages (if not listed):", key="src_other_txt", placeholder="e.g., Finnish, Hebrew")
-    if other_src.strip():
-        selected_source_langs.append(other_src.strip())
+# --- SOURCE & TARGET LANGUAGES (STANDARD MULTISELECT DROPDOWNS) ---
+selected_source_langs = st.multiselect(
+    "Source Language(s) *:", 
+    LANGUAGES_POOL,
+    placeholder="Choose source language(s)..."
+)
 
-if selected_source_langs:
-    st.caption(f"**Selected Source:** {', '.join(selected_source_langs)}")
+selected_target_langs = st.multiselect(
+    "Target Language(s) *:", 
+    LANGUAGES_POOL,
+    placeholder="Choose target language(s)..."
+)
 
-# --- TARGET LANGUAGES (CHECKLIST INSIDE DROPDOWN) ---
-selected_target_langs = []
-with st.expander("🎯 Click to open Target Language(s) dropdown checklist *"):
-    tgt_cols = st.columns(3)
-    for idx, lang in enumerate(LANGUAGES_POOL):
-        col_target = tgt_cols[idx % 3]
-        if col_target.checkbox(lang, key=f"tgt_dd_{lang}"):
-            selected_target_langs.append(lang)
-    other_tgt = st.text_input("Other Target Languages (if not listed):", key="tgt_other_txt", placeholder="e.g., Danish, Thai")
-    if other_tgt.strip():
-        selected_target_langs.append(other_tgt.strip())
-
-if selected_target_langs:
-    st.caption(f"**Selected Target:** {', '.join(selected_target_langs)}")
-
-# --- CAT TOOLS (CHECKLIST INSIDE DROPDOWN) ---
+# --- CAT TOOLS (CHECKLIST INSIDE DROPDOWN EXPANDER) ---
 selected_cat_tools = []
-with st.expander("🛠️ Click to open CAT Tools dropdown checklist"):
+with st.expander("Click to open CAT Tools dropdown checklist"):
     cat_cols = st.columns(3)
     for idx, tool in enumerate(CAT_OPTIONS):
         col_target = cat_cols[idx % 3]
@@ -166,9 +148,9 @@ with st.expander("🛠️ Click to open CAT Tools dropdown checklist"):
 if selected_cat_tools:
     st.caption(f"**Selected CAT Tools:** {', '.join(selected_cat_tools)}")
 
-# --- DOMAIN EXPERTISE (CHECKLIST INSIDE DROPDOWN) ---
+# --- DOMAIN EXPERTISE (CHECKLIST INSIDE DROPDOWN EXPANDER) ---
 selected_domains = []
-with st.expander("📚 Click to open Domain Expertise dropdown checklist"):
+with st.expander("Click to open Domain Expertise dropdown checklist"):
     dom_cols = st.columns(2)
     for idx, dom in enumerate(DOMAIN_OPTIONS):
         col_target = dom_cols[idx % 2]
@@ -178,9 +160,9 @@ with st.expander("📚 Click to open Domain Expertise dropdown checklist"):
 if selected_domains:
     st.caption(f"**Selected Domains:** {', '.join(selected_domains)}")
 
-# --- SERVICES PROVIDED (CHECKLIST INSIDE DROPDOWN) ---
+# --- SERVICES PROVIDED (CHECKLIST INSIDE DROPDOWN EXPANDER) ---
 selected_services = []
-with st.expander("⚙️ Click to open Services Provided dropdown checklist *"):
+with st.expander("Click to open Services Provided dropdown checklist *"):
     srv_cols = st.columns(3)
     for idx, srv in enumerate(SERVICES_OPTIONS):
         col_target = srv_cols[idx % 3]
@@ -191,7 +173,7 @@ if selected_services:
     st.caption(f"**Selected Services:** {', '.join(selected_services)}")
 
 # --- MANDATORY SERVICE RATES & PRICING ---
-st.markdown("##### 💰 Mandatory Service Rates & Pricing *")
+st.markdown("##### Mandatory Service Rates & Pricing *")
 rate_curr_col, rate_trans_col, rate_edit_col = st.columns(3)
 with rate_curr_col:
     rate_currency = st.selectbox("Preferred Currency *", ["USD ($)", "JPY (¥)", "INR (₹)", "EUR (€)", "GBP (£)"])
@@ -203,7 +185,7 @@ with rate_edit_col:
 # ==========================================
 # SECTION 3: PAYMENT DETAILS
 # ==========================================
-st.markdown("#### 🏦 Section 3: Payment Details")
+st.markdown("#### Section 3: Payment Details")
 col_fin1, col_fin2 = st.columns(2)
 with col_fin1:
     b_name = st.text_input("Bank Name")
@@ -222,7 +204,7 @@ with col_tax1:
 with col_tax2:
     b_gst = st.text_input("GST Number (if applicable)")
 
-st.markdown("##### 💳 Alternative Global Payment Systems")
+st.markdown("##### Alternative Global Payment Systems")
 col_alt1, col_alt2 = st.columns(2)
 with col_alt1:
     pay_paypal = st.text_input("PayPal ID")
@@ -233,23 +215,23 @@ with col_alt2:
 # ==========================================
 # SECTION 4: DOWNLOAD TEMPLATES
 # ==========================================
-st.markdown("#### 📥 Section 4: Download Standard Templates")
+st.markdown("#### Section 4: Download Standard Templates")
 nda_data = get_file_data("Fidel_NDA_Ver 1.3.pdf")
 po_data = get_file_data("Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf")
 consent_data = get_file_data("Fidel Consent Form.pdf")
 
 d_col1, d_col2, d_col3 = st.columns(3)
 with d_col1:
-    st.download_button("📥 Download NDA Template", data=nda_data, file_name="Fidel_NDA_Ver 1.3.pdf", mime="application/pdf", disabled=(len(nda_data) == 0))
+    st.download_button("Download NDA Template", data=nda_data, file_name="Fidel_NDA_Ver 1.3.pdf", mime="application/pdf", disabled=(len(nda_data) == 0))
 with d_col2:
-    st.download_button("📥 Download PO Terms", data=po_data, file_name="Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf", mime="application/pdf", disabled=(len(po_data) == 0))
+    st.download_button("Download PO Terms", data=po_data, file_name="Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf", mime="application/pdf", disabled=(len(po_data) == 0))
 with d_col3:
-    st.download_button("📥 Download Consent Form", data=consent_data, file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
+    st.download_button("Download Consent Form", data=consent_data, file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
 
 # ==========================================
 # SECTION 5: TRANSLATION EVALUATION TEST
 # ==========================================
-st.markdown("#### 📝 Section 5: Mandatory Translation Evaluation Test")
+st.markdown("#### Section 5: Mandatory Translation Evaluation Test")
 st.write("Select your translation track below, download the respective assignment file, and upload your completed translation.")
 
 test_track = st.selectbox("Select Translation Test Track *", [
@@ -273,7 +255,7 @@ if target_filename:
     test_file_data = get_file_data(target_filename)
     if len(test_file_data) > 0:
         st.download_button(
-            label=f"📥 Download {test_track} Test File",
+            label=f"Download {test_track} Test File",
             data=test_file_data,
             file_name=target_filename,
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -287,7 +269,7 @@ file_test_attempt = st.file_uploader("Upload Your Completed Translation Test Fil
 # ==========================================
 # SECTION 6: COMPLIANCE DOCUMENTATION
 # ==========================================
-st.markdown("#### 📤 Section 6: Compliance Documentation Submission")
+st.markdown("#### Section 6: Compliance Documentation Submission")
 file_cv = st.file_uploader("Upload Latest CV / Resume *", type=['pdf', 'doc', 'docx'])
 file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
 file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
@@ -296,7 +278,7 @@ file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf
 # ==========================================
 # SECTION 7: ADDITIONAL CREDENTIALS
 # ==========================================
-st.markdown("#### 🏅 Section 7: Additional Credentials & Certifications")
+st.markdown("#### Section 7: Additional Credentials & Certifications")
 file_cert = st.file_uploader("Upload Translation Certificate (if any)", type=['pdf', 'jpg', 'png'])
 file_edu = st.file_uploader("Upload Educational Qualification Certificates *", type=['pdf', 'jpg', 'png'])
 file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=['pdf', 'doc', 'docx'])
@@ -335,7 +317,7 @@ if st.button("Submit Onboarding Registration", type="primary"):
         st.session_state.submitted = True
         st.rerun()
     else:
-        st.error("❌ Submission Failed. Please check that all mandatory checkboxes and fields (*) are filled.")
+        st.error("Submission Failed. Please check that all mandatory fields (*) are filled.")
 
 # ==========================================
 # 5. ZIP PACKAGE COMPOSITION (.XLSX + FILES)
@@ -410,9 +392,9 @@ if st.session_state.submitted:
                 
     zip_buffer.seek(0)
     
-    st.info("ℹ️ Your registration data files have been verified and bundled successfully.")
+    st.info("Your registration data files have been verified and bundled successfully.")
     st.markdown("---")
-    st.markdown("### 📧 Final Step: Dispatch Packages to Vendor Management")
+    st.markdown("### Final Step: Dispatch Packages to Vendor Management")
     st.write("Follow these two quick steps to send your documentation straight to our team:")
     
     act_col1, act_col2 = st.columns(2)
@@ -420,7 +402,7 @@ if st.session_state.submitted:
     with act_col1:
         st.markdown("**Step 1:** Download the complete package.")
         st.download_button(
-            label="📥 Download Onboarding Package (.zip)",
+            label="Download Onboarding Package (.zip)",
             data=zip_buffer.getvalue(),
             file_name=f"{clean_name}_Onboarding_Package.zip",
             mime="application/zip",
@@ -437,8 +419,8 @@ if st.session_state.submitted:
         st.markdown(
             f'<a href="{mailto_link}" target="_blank" style="text-decoration:none;">'
             f'<button style="background-color:#4CAF50; color:white; border:none; padding:10px 20px; font-size:16px; '
-            f'border-radius:4px; cursor:pointer; width:100%; height:45px; margin-top:2px;">📨 Open Corporate Mail Client</button></a>', 
+            f'border-radius:4px; cursor:pointer; width:100%; height:45px; margin-top:2px;">Open Corporate Mail Client</button></a>', 
             unsafe_allow_html=True
         )
         
-    st.info("💡 **Tip:** After you click Step 1 to download the file, hit Step 2. Your email app will instantly open up pre-addressed, and you can just drag the zip file from your download bar directly into that message window!")
+    st.info("Tip: After you click Step 1 to download the file, hit Step 2. Your email app will instantly open up pre-addressed, and you can just drag the zip file from your download bar directly into that message window!")
