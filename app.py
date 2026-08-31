@@ -1,6 +1,10 @@
 import os
 import io
 import zipfile
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 import pandas as pd
 from datetime import datetime
 import streamlit as st
@@ -55,17 +59,81 @@ SERVICES_OPTIONS = [
     "Subtitling", "Transcreation", "Transcription", "Translation", "Voice-Over"
 ]
 
-def get_file_data(filename):
-    if os.path.exists(filename):
-        try:
-            with open(filename, "rb") as f: 
-                return f.read()
-        except: 
-            return b""
-    return b""
+# In-Portal Live Test Source Texts
+TEST_PASSAGES = {
+    "English to Indian Languages": (
+        "Fidel Softech provides end-to-end localization, translation, and technology services to global enterprises. "
+        "Maintaining terminology consistency, contextual accuracy, and strict adherence to domain guidelines is essential for all corporate deliverables."
+    ),
+    "English to Japanese": (
+        "Our vendor management team evaluates external linguists based on domain expertise, CAT tool proficiency, and quality benchmark tests. "
+        "Timely communication and strict compliance with project confidentiality requirements are mandatory."
+    ),
+    "Japanese to English": (
+        "当社はローカライゼーションおよびITソリューションを提供するグローバル企業です。"
+        "品質管理、情報セキュリティの順守、ならびに納期厳守を最優先事項として業務を遂行しています。"
+    )
+}
 
 # ==========================================
-# 2. HEADER LAYOUT
+# 2. HELPER FUNCTIONS (SMTP DISPATCH)
+# ==========================================
+def auto_send_email_to_vm(zip_data, vendor_name, vendor_email):
+    """Silently dispatches the onboarding ZIP directly to vendor-mgmt@fideltech.com via SMTP."""
+    smtp_server = st.secrets.get("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port = int(st.secrets.get("SMTP_PORT", 587))
+    sender_email = st.secrets.get("SENDER_EMAIL", "")
+    sender_password = st.secrets.get("SENDER_PASSWORD", "")
+
+    if not sender_email or not sender_password:
+        return False, "SMTP secret keys (SENDER_EMAIL/SENDER_PASSWORD) are not configured."
+
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = TARGET_EMAIL
+    msg['Subject'] = f"New Resource Onboarding Submission: {vendor_name}"
+
+    body = f"""
+    Hello Vendor Management Team,
+
+    A new vendor registration profile has been completed via the Fidel Resource Onboarding Portal.
+
+    Vendor Details:
+    ------------------
+    • Name: {vendor_name}
+    • Email: {vendor_email}
+    • Submission Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+    The attached ZIP package contains:
+    1. Plunet-ready Excel Vendor Matrix
+    2. Digital Compliance & Signature Agreement
+    3. In-Portal Live Translation Evaluation Test
+    4. Uploaded CV & Supporting Credentials
+
+    Regards,
+    Fidel Resource Onboarding System
+    """
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Attach ZIP archive
+    zip_filename = f"{vendor_name.replace(' ', '_')}_Onboarding_Package.zip"
+    part = MIMEApplication(zip_data, Name=zip_filename)
+    part['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
+    msg.attach(part)
+
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, TARGET_EMAIL, msg.as_string())
+        server.quit()
+        return True, "Successfully dispatched to Vendor Management."
+    except Exception as e:
+        return False, str(e)
+
+
+# ==========================================
+# 3. HEADER LAYOUT
 # ==========================================
 logo_path = "FIDEL.NSE.png"
 col_logo, col_title = st.columns([0.6, 4.4], vertical_alignment="center")
@@ -77,13 +145,13 @@ with col_logo:
 with col_title:
     st.markdown("<h1 style='margin: 0; padding: 0; font-size: 2.25rem; white-space: nowrap;'>Fidel Softech Resource Onboarding</h1>", unsafe_allow_html=True)
 
-st.markdown("Please complete the official empanelment profile form below, complete the translation test task, and upload your paperwork.")
+st.markdown("Please complete the official empanelment profile form, take the live evaluation test, and digitally sign your agreement below.")
 st.markdown("---")
 
 st.subheader("Resource Empanelment Profile")
 
 # ==========================================
-# 3. FORM SECTIONS
+# 4. FORM SECTIONS
 # ==========================================
 st.markdown("#### Section 1: Personal Information")
 col1, col2 = st.columns(2)
@@ -136,7 +204,7 @@ selected_target_langs = st.multiselect(
     placeholder="Choose target language(s)..."
 )
 
-# --- CAT TOOLS (CHECKLIST INSIDE DROPDOWN EXPANDER) ---
+# --- CAT TOOLS (EXPANDABLE CHECKLIST DROPDOWN) ---
 selected_cat_tools = []
 with st.expander("Click to open CAT Tools dropdown checklist"):
     cat_cols = st.columns(3)
@@ -148,7 +216,7 @@ with st.expander("Click to open CAT Tools dropdown checklist"):
 if selected_cat_tools:
     st.caption(f"**Selected CAT Tools:** {', '.join(selected_cat_tools)}")
 
-# --- DOMAIN EXPERTISE (CHECKLIST INSIDE DROPDOWN EXPANDER) ---
+# --- DOMAIN EXPERTISE (EXPANDABLE CHECKLIST DROPDOWN) ---
 selected_domains = []
 with st.expander("Click to open Domain Expertise dropdown checklist"):
     dom_cols = st.columns(2)
@@ -160,7 +228,7 @@ with st.expander("Click to open Domain Expertise dropdown checklist"):
 if selected_domains:
     st.caption(f"**Selected Domains:** {', '.join(selected_domains)}")
 
-# --- SERVICES PROVIDED (CHECKLIST INSIDE DROPDOWN EXPANDER) ---
+# --- SERVICES PROVIDED (EXPANDABLE CHECKLIST DROPDOWN) ---
 selected_services = []
 with st.expander("Click to open Services Provided dropdown checklist *"):
     srv_cols = st.columns(3)
@@ -212,27 +280,11 @@ with col_alt1:
 with col_alt2:
     pay_proz = st.text_input("ProZ*Pay Link")
 
-# ==========================================
-# SECTION 4: DOWNLOAD TEMPLATES
-# ==========================================
-st.markdown("#### Section 4: Download Standard Templates")
-nda_data = get_file_data("Fidel_NDA_Ver 1.3.pdf")
-po_data = get_file_data("Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf")
-consent_data = get_file_data("Fidel Consent Form.pdf")
-
-d_col1, d_col2, d_col3 = st.columns(3)
-with d_col1:
-    st.download_button("Download NDA Template", data=nda_data, file_name="Fidel_NDA_Ver 1.3.pdf", mime="application/pdf", disabled=(len(nda_data) == 0))
-with d_col2:
-    st.download_button("Download PO Terms", data=po_data, file_name="Fidel_PO-Invoice-Payment-Procedure_ver_1.3.pdf", mime="application/pdf", disabled=(len(po_data) == 0))
-with d_col3:
-    st.download_button("Download Consent Form", data=consent_data, file_name="Fidel Consent Form.pdf", mime="application/pdf", disabled=(len(consent_data) == 0))
-
-# ==========================================
-# SECTION 5: TRANSLATION EVALUATION TEST
-# ==========================================
-st.markdown("#### Section 5: Mandatory Translation Evaluation Test")
-st.write("Select your translation track below, download the respective assignment file, and upload your completed translation.")
+# ========================================================
+# SECTION 4: IN-PORTAL LIVE TRANSLATION EVALUATION TEST
+# ========================================================
+st.markdown("#### Section 4: Mandatory Translation Evaluation Test")
+st.write("Select your translation track below and complete the test directly in the text area.")
 
 test_track = st.selectbox("Select Translation Test Track *", [
     "-- Choose Track --", 
@@ -241,186 +293,200 @@ test_track = st.selectbox("Select Translation Test Track *", [
     "Japanese to English"
 ])
 
-test_file_data = b""
-target_filename = ""
+live_translation_input = ""
+if test_track != "-- Choose Track --":
+    st.info(f"**Source Text ({test_track}):**\n\n{TEST_PASSAGES[test_track]}")
+    live_translation_input = st.text_area(
+        "Type your translated text here *", 
+        height=180, 
+        placeholder="Enter your translated text here..."
+    )
 
-if test_track == "English to Indian Languages":
-    target_filename = "Test_English_to_Indian.docx"
-elif test_track == "English to Japanese":
-    target_filename = "Test_English_to_Japanese.docx"
-elif test_track == "Japanese to English":
-    target_filename = "Test_Japanese_to_English.docx"
+# ========================================================
+# SECTION 5: DIGITAL / E-SIGNATURE & COMPLIANCE
+# ========================================================
+st.markdown("#### Section 5: Legal Compliance & Digital Signature")
 
-if target_filename:
-    test_file_data = get_file_data(target_filename)
-    if len(test_file_data) > 0:
-        st.download_button(
-            label=f"Download {test_track} Test File",
-            data=test_file_data,
-            file_name=target_filename,
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            type="secondary"
-        )
-    else:
-        st.warning(f"⚠️ {target_filename} not found in the repository root path.")
+with st.expander("Review Fidel Terms, NDA (v1.3), PO Guidelines & Data Consent Policy"):
+    st.markdown("""
+    **Summary of Terms:**
+    1. **Confidentiality:** All materials, source files, and project communications remain the strict property of Fidel Softech.
+    2. **Quality Assurance:** Work delivered must comply with agreed glossaries, style guides, and translation standards.
+    3. **Data Protection:** Personal information provided in this form is processed strictly for vendor management and empanelment auditing.
+    """)
 
-file_test_attempt = st.file_uploader("Upload Your Completed Translation Test File *", type=['txt', 'doc', 'docx', 'pdf'])
+st.markdown("##### Digital Signature Execution *")
+sig_col1, sig_col2 = st.columns(2)
+with sig_col1:
+    digital_sig_name = st.text_input("Full Legal Name (Digital Signature) *", placeholder="e.g., Jane Doe")
+with sig_col2:
+    digital_sig_date = st.text_input("Date of Execution", value=datetime.now().strftime("%Y-%m-%d"), disabled=True)
 
-# ==========================================
-# SECTION 6: COMPLIANCE DOCUMENTATION
-# ==========================================
-st.markdown("#### Section 6: Compliance Documentation Submission")
+digital_nda_agreed = st.checkbox("I confirm that typing my full legal name above serves as a legally binding electronic signature under applicable digital transaction laws. *")
+
+# ========================================================
+# SECTION 6: CREDENTIAL & CV UPLOADS
+# ========================================================
+st.markdown("#### Section 6: Document Uploads")
 file_cv = st.file_uploader("Upload Latest CV / Resume *", type=['pdf', 'doc', 'docx'])
-file_nda = st.file_uploader("Upload Signed Fidel NDA (v1.3) *", type=['pdf'])
-file_po = st.file_uploader("Upload Signed Fidel PO Guidelines *", type=['pdf'])
-file_consent = st.file_uploader("Upload Signed Fidel Data Consent *", type=['pdf'])
-
-# ==========================================
-# SECTION 7: ADDITIONAL CREDENTIALS
-# ==========================================
-st.markdown("#### Section 7: Additional Credentials & Certifications")
-file_cert = st.file_uploader("Upload Translation Certificate (if any)", type=['pdf', 'jpg', 'png'])
-file_edu = st.file_uploader("Upload Educational Qualification Certificates *", type=['pdf', 'jpg', 'png'])
-file_ref = st.file_uploader("Upload Reference or Recommendation Letter *", type=['pdf', 'doc', 'docx'])
+file_cert = st.file_uploader("Upload Educational / Professional Certificates (Optional)", type=['pdf', 'jpg', 'png', 'zip'])
 
 st.markdown("---")
 
-# ==========================================
-# 4. SUBMISSION VALIDATION ENGINE
-# ==========================================
-if "submitted" not in st.session_state:
-    st.session_state.submitted = False
+# ========================================================
+# 5. UNIFIED SINGLE "SUBMIT" BUTTON & PROCESSING
+# ========================================================
+if st.button("Submit Onboarding Registration", type="primary", use_container_width=True):
+    # Field Validation
+    errors = []
+    if not (f_name and f_name.strip()):
+        errors.append("First Name is required.")
+    if not (l_name and l_name.strip()):
+        errors.append("Last Name is required.")
+    if not (v_email and v_email.strip()):
+        errors.append("Email ID is required.")
+    if not (v_phone_local and v_phone_local.strip()):
+        errors.append("Phone Number is required.")
+    if not (addr_city and addr_city.strip()) or not (addr_country and addr_country.strip()):
+        errors.append("City and Country are required.")
+    if not (native and native.strip()):
+        errors.append("Native Language is required.")
+    if not selected_source_langs:
+        errors.append("Select at least one Source Language.")
+    if not selected_target_langs:
+        errors.append("Select at least one Target Language.")
+    if not selected_services:
+        errors.append("Select at least one Service.")
+    if rate_per_word <= 0 and rate_per_hour <= 0:
+        errors.append("Please specify at least one valid service rate (Word or Hour).")
+    if test_track == "-- Choose Track --":
+        errors.append("Please select a Translation Test Track.")
+    if not (live_translation_input and live_translation_input.strip()):
+        errors.append("Please complete your translation test in the text area.")
+    if not (digital_sig_name and digital_sig_name.strip()) or not digital_nda_agreed:
+        errors.append("Digital Signature and Agreement Checkbox are required.")
+    if not file_cv:
+        errors.append("Please upload your Resume/CV.")
 
-if st.button("Submit Onboarding Registration", type="primary"):
-    v_first_name = bool(f_name and f_name.strip())
-    v_last_name = bool(l_name and l_name.strip())
-    v_email_id = bool(v_email and v_email.strip())
-    v_contact = bool(v_phone_local and v_phone_local.strip())
-    v_city = bool(addr_city and addr_city.strip())
-    v_country = bool(addr_country and addr_country.strip())
-    v_native = bool(native and native.strip())
-    
-    v_source_lang = len(selected_source_langs) > 0
-    v_target_lang = len(selected_target_langs) > 0
-    v_services = len(selected_services) > 0
-    v_rates = (rate_per_word > 0.0) or (rate_per_hour > 0.0)
-    
-    v_track = test_track != "-- Choose Track --"
-    v_test_file = file_test_attempt is not None
-    
-    v_compliance = (file_cv is not None) and (file_nda is not None) and (file_po is not None) and (file_consent is not None)
-    v_section7 = (file_edu is not None) and (file_ref is not None)
-
-    if (v_first_name and v_last_name and v_email_id and v_contact and v_city and 
-        v_country and v_native and v_source_lang and v_target_lang and v_services and v_rates and 
-        v_track and v_test_file and v_compliance and v_section7):
-        st.session_state.submitted = True
-        st.rerun()
+    if errors:
+        for err in errors:
+            st.error(f"❌ {err}")
     else:
-        st.error("Submission Failed. Please check that all mandatory fields (*) are filled.")
+        with st.spinner("Processing registration, generating compliance certificate, and packaging files..."):
+            full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
+            clean_name = full_vendor_name.replace(' ', '_')
 
-# ==========================================
-# 5. ZIP PACKAGE COMPOSITION (.XLSX + FILES)
-# ==========================================
-if st.session_state.submitted:
-    full_vendor_name = f"{f_name.strip()} {l_name.strip()}"
-    clean_name = full_vendor_name.replace(' ', '_')
-    
-    vendor_data = {
-        "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
-        "First Name": [f_name.strip()],
-        "Last Name": [l_name.strip()],
-        "Email ID": [v_email.strip()],
-        "Contact Number": [v_phone],
-        "Availability Status": [avail],
-        "Street Address": [f"{addr_street} {addr_street2}".strip()],
-        "City": [addr_city.strip()],
-        "State": [addr_state.strip()],
-        "Zip Code": [addr_zip.strip()],
-        "Country": [addr_country.strip()],
-        "Native Language": [native.strip()],
-        "Experience (Years)": [exp],
-        "Source Language Selection": [', '.join(selected_source_langs)],
-        "Target Language Selection": [', '.join(selected_target_langs)],
-        "CAT Tools": [', '.join(selected_cat_tools) if selected_cat_tools else "None"],
-        "Domain Expertise": [', '.join(selected_domains) if selected_domains else "None"],
-        "Services Provided": [', '.join(selected_services)],
-        "Preferred Currency": [rate_currency],
-        "Translation Rate (Per Word)": [rate_per_word],
-        "Editing Rate (Per Hour)": [rate_per_hour],
-        "Bank Name": [b_name.strip()],
-        "Account Holder": [b_holder.strip()],
-        "Bank Code": [b_code.strip()],
-        "Account Number": [b_acc.strip()],
-        "IFSC Code": [b_ifsc.strip()],
-        "Swift Code": [b_swift.strip()],
-        "PAN Card": [b_tax.strip()],
-        "GST Number": [b_gst.strip()],
-        "PayPal ID": [pay_paypal.strip()],
-        "Payoneer ID": [pay_payoneer.strip()],
-        "ProZ Link": [pay_proz.strip()],
-        "Translation Test Track": [test_track],
-        "Test File Name": [file_test_attempt.name]
-    }
-    
-    df_individual = pd.DataFrame(vendor_data)
-    
-    excel_buffer = io.BytesIO()
-    with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-        df_individual.to_excel(writer, index=False, sheet_name="Vendor Onboarding Matrix")
-    excel_data = excel_buffer.getvalue()
-    
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_data)
-        
-        uploaded_files = [
-            (file_cv, "CV_Resume"),
-            (file_nda, "Signed_NDA"), 
-            (file_po, "Signed_PO"), 
-            (file_consent, "Signed_Data_Consent"),
-            (file_test_attempt, "Completed_Translation_Test"),
-            (file_edu, "Educational_Certificates"), 
-            (file_ref, "Reference_Letter"), 
-            (file_cert, "Translation_Certificate")
-        ]
-        
-        for file_obj, filename_prefix in uploaded_files:
-            if file_obj is not None:
-                ext = os.path.splitext(file_obj.name)[1]
-                zip_file.writestr(f"{filename_prefix}{ext}", file_obj.getvalue())
+            # 1. Master Vendor Excel Record Data
+            vendor_data = {
+                "Registration Date": [datetime.now().strftime("%Y-%m-%d %H:%M")],
+                "First Name": [f_name.strip()],
+                "Last Name": [l_name.strip()],
+                "Email ID": [v_email.strip()],
+                "Contact Number": [v_phone],
+                "Availability Status": [avail],
+                "Street Address": [f"{addr_street} {addr_street2}".strip()],
+                "City": [addr_city.strip()],
+                "State": [addr_state.strip()],
+                "Zip Code": [addr_zip.strip()],
+                "Country": [addr_country.strip()],
+                "Native Language": [native.strip()],
+                "Experience (Years)": [exp],
+                "Source Languages": [', '.join(selected_source_langs)],
+                "Target Languages": [', '.join(selected_target_langs)],
+                "CAT Tools": [', '.join(selected_cat_tools) if selected_cat_tools else "None"],
+                "Domain Expertise": [', '.join(selected_domains) if selected_domains else "None"],
+                "Services Provided": [', '.join(selected_services)],
+                "Preferred Currency": [rate_currency],
+                "Translation Rate (Per Word)": [rate_per_word],
+                "Editing Rate (Per Hour)": [rate_per_hour],
+                "Bank Name": [b_name.strip()],
+                "Account Holder": [b_holder.strip()],
+                "Bank Code": [b_code.strip()],
+                "Account Number": [b_acc.strip()],
+                "IFSC Code": [b_ifsc.strip()],
+                "Swift Code": [b_swift.strip()],
+                "PAN Card": [b_tax.strip()],
+                "GST Number": [b_gst.strip()],
+                "PayPal ID": [pay_paypal.strip()],
+                "Payoneer ID": [pay_payoneer.strip()],
+                "ProZ Link": [pay_proz.strip()],
+                "Test Track Selected": [test_track],
+                "Digital Signature Name": [digital_sig_name.strip()],
+                "Digital Signature Date": [digital_sig_date],
+                "E-Signature Agreed": ["Yes"]
+            }
+
+            df_individual = pd.DataFrame(vendor_data)
+            excel_buffer = io.BytesIO()
+            with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+                df_individual.to_excel(writer, index=False, sheet_name="Vendor Onboarding Matrix")
+            excel_bytes = excel_buffer.getvalue()
+
+            # 2. Digital Signature Certificate Document
+            sig_cert_text = f"""FIDEL SOFTECH - DIGITAL COMPLIANCE EXECUTION CERTIFICATE
+------------------------------------------------------------
+Signatory Name: {digital_sig_name.strip()}
+Signatory Email: {v_email.strip()}
+Execution Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")}
+
+Agreed Policies:
+- Fidel Non-Disclosure Agreement (NDA v1.3)
+- Fidel PO Terms & Conditions
+- Fidel Data Consent & Privacy Policy
+
+Status: ELECTRONICALLY SIGNED & VERIFIED IN-PORTAL
+"""
+
+            # 3. Live Translation Test File Content
+            live_test_content = f"""FIDEL SOFTECH - IN-PORTAL TRANSLATION EVALUATION TEST
+------------------------------------------------------------
+Candidate: {full_vendor_name}
+Track: {test_track}
+Submission Date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+SOURCE TEXT:
+{TEST_PASSAGES.get(test_track, '')}
+
+CANDIDATE TRANSLATION:
+{live_translation_input.strip()}
+"""
+
+            # 4. ZIP Package Compilation
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                # Add Excel Profile Matrix
+                zip_file.writestr(f"{clean_name}_Registration_Details.xlsx", excel_bytes)
+                # Add Digital Signature Certificate
+                zip_file.writestr("Digital_Signature_Certificate.txt", sig_cert_text.encode('utf-8'))
+                # Add Completed Translation Test Output
+                zip_file.writestr(f"Completed_Translation_Test_{test_track.replace(' ', '_')}.txt", live_test_content.encode('utf-8'))
                 
-    zip_buffer.seek(0)
-    
-    st.info("Your registration data files have been verified and bundled successfully.")
-    st.markdown("---")
-    st.markdown("### Final Step: Dispatch Packages to Vendor Management")
-    st.write("Follow these two quick steps to send your documentation straight to our team:")
-    
-    act_col1, act_col2 = st.columns(2)
-    
-    with act_col1:
-        st.markdown("**Step 1:** Download the complete package.")
-        st.download_button(
-            label="Download Onboarding Package (.zip)",
-            data=zip_buffer.getvalue(),
-            file_name=f"{clean_name}_Onboarding_Package.zip",
-            mime="application/zip",
-            type="primary",
-            use_container_width=True
-        )
-        
-    with act_col2:
-        st.markdown("**Step 2:** Open email client dashboard.")
-        email_subject = f"Onboarding Registration Submission - {full_vendor_name}"
-        email_body = f"Hello VM Team,\n\nPlease find attached my unified resource onboarding folder package containing my registration details Excel sheet and signed compliance documentation.\n\nBest Regards,\n{full_vendor_name}"
-        mailto_link = f"mailto:{TARGET_EMAIL}?subject={email_subject.replace(' ', '%20')}&body={email_body.replace(' ', '%20').replace('\n', '%0A')}"
-        
-        st.markdown(
-            f'<a href="{mailto_link}" target="_blank" style="text-decoration:none;">'
-            f'<button style="background-color:#4CAF50; color:white; border:none; padding:10px 20px; font-size:16px; '
-            f'border-radius:4px; cursor:pointer; width:100%; height:45px; margin-top:2px;">Open Corporate Mail Client</button></a>', 
-            unsafe_allow_html=True
-        )
-        
-    st.info("Tip: After you click Step 1 to download the file, hit Step 2. Your email app will instantly open up pre-addressed, and you can just drag the zip file from your download bar directly into that message window!")
+                # Add Uploaded Files
+                if file_cv:
+                    ext = os.path.splitext(file_cv.name)[1]
+                    zip_file.writestr(f"CV_Resume{ext}", file_cv.getvalue())
+                if file_cert:
+                    ext = os.path.splitext(file_cert.name)[1]
+                    zip_file.writestr(f"Certificates{ext}", file_cert.getvalue())
+
+            zip_buffer.seek(0)
+            final_zip_bytes = zip_buffer.getvalue()
+
+            # 5. Automated Silent Dispatch to vendor-mgmt@fideltech.com
+            sent, status_msg = auto_send_email_to_vm(final_zip_bytes, full_vendor_name, v_email.strip())
+
+            st.balloons()
+            st.success("🎉 Application Submitted Successfully!")
+            
+            if sent:
+                st.info("✉️ All details, digital signatures, translation test results, and documents have been automatically delivered to the Vendor Management team (`vendor-mgmt@fideltech.com`).")
+            else:
+                st.warning(f"⚠️ Direct dispatch notice: {status_msg}")
+                st.write("You can also download a copy of your completed registration package below:")
+                st.download_button(
+                    label="📥 Download Submission Archive (.zip)",
+                    data=final_zip_bytes,
+                    file_name=f"{clean_name}_Onboarding_Package.zip",
+                    mime="application/zip",
+                    type="secondary"
+                )
